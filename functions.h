@@ -1,10 +1,10 @@
 #include "main.h"
 //#define REDIRECTED(x) redirectFunc[a##x] = x
-#define REDIRECTED(x) redirectFunc[a##x] = containedFunc[a##x] = x
-#define CONVERTED(x) containedFunc[a##x] = x
+#define REDIRECTED(x) redirectFunc[a##x] = convertedFunc[a##x] = x
+#define CONVERTED(x) convertedFunc[a##x] = x
 
 void init_function_pointers() {
-    for (int i = 0; i < ROM_SIZE; i++) redirectFunc[i] = containedFunc[i] = NULL;
+    for (int i = 0; i < ROM_SIZE; i++) redirectFunc[i] = convertedFunc[i] = NULL;
 
     // home/array.c
     // REDIRECTED(AddNTimes);
@@ -12,34 +12,33 @@ void init_function_pointers() {
     // REDIRECTED(SkipNames);
 
     // home/audio.c
-    // REDIRECTED(MaxVolume);
-    // REDIRECTED(PlayMusic2);
-    // REDIRECTED(v_LoadMusicByte);
-    // REDIRECTED(MinVolume);
-    // REDIRECTED(RestartMapMusic);
-    // REDIRECTED(IsSFXPlaying);
-    // REDIRECTED(UpdateSound);
-    // REDIRECTED(FadeOutToMusic);
-    // REDIRECTED(SpecialMapMusic);
-    // REDIRECTED(GetMapMusic_MaybeSpecial);
-    // REDIRECTED(WaitPlaySFX);
-    // REDIRECTED(ChannelsOff);
-    // REDIRECTED(PlaceBCDNumberSprite);
-    // REDIRECTED(LowVolume);
-    // REDIRECTED(PlaySFX);
-    // REDIRECTED(TerminateExpBarSound);
-    // REDIRECTED(InitSound);
-    // REDIRECTED(TryRestartMapMusic);
-    // REDIRECTED(FadeInToMusic);
-    // REDIRECTED(PlayMapMusicBike);
-    // REDIRECTED(WaitSFX);
-    // REDIRECTED(PlayMapMusic);
-    // REDIRECTED(PlayMusic);
-    // REDIRECTED(FadeToMapMusic);
-    // REDIRECTED(PlayCry);
-    // REDIRECTED(SkipMusic);
-    // REDIRECTED(SFXChannelsOff);
-    // REDIRECTED(CheckSFX);
+    REDIRECTED(MaxVolume);
+    REDIRECTED(PlayMusic2);
+    REDIRECTED(MinVolume);
+    REDIRECTED(RestartMapMusic);
+    REDIRECTED(IsSFXPlaying);
+    REDIRECTED(UpdateSound);
+    REDIRECTED(FadeOutToMusic);
+    REDIRECTED(SpecialMapMusic);
+    REDIRECTED(GetMapMusic_MaybeSpecial);
+    REDIRECTED(WaitPlaySFX);
+    REDIRECTED(PlaceBCDNumberSprite);
+    REDIRECTED(LowVolume);
+    REDIRECTED(PlaySFX);
+    REDIRECTED(TerminateExpBarSound);
+    REDIRECTED(InitSound);
+    REDIRECTED(TryRestartMapMusic);
+    REDIRECTED(FadeInToMusic);
+    REDIRECTED(PlayMapMusicBike);
+    REDIRECTED(WaitSFX);
+    REDIRECTED(PlayMapMusic);
+    REDIRECTED(PlayMusic);
+    REDIRECTED(FadeToMapMusic);
+    REDIRECTED(PlayCry);
+    REDIRECTED(SkipMusic);
+    REDIRECTED(CheckSFX);
+    REDIRECTED(ChannelsOff);
+    REDIRECTED(SFXChannelsOff);
 
     // home/battle.c
     // REDIRECTED(UpdateBattleHuds);
@@ -1059,4 +1058,75 @@ void init_function_pointers() {
     // REDIRECTED(v_LoadHDMAParameters);
     // REDIRECTED(PadAttrmapForHDMATransfer);
     // REDIRECTED(PadTilemapForHDMATransfer);
+
+    // audio/engine.c
+    CONVERTED(v_InitSound);
+    CONVERTED(MusicFadeRestart);
+    CONVERTED(MusicOn);
+    CONVERTED(MusicOff);
+    CONVERTED(v_UpdateSound);
+    CONVERTED(UpdateChannels);
+    // CONVERTED(v_CheckSFX);
+    CONVERTED(PlayDanger);
+    CONVERTED(FadeMusic);
+    CONVERTED(LoadNote);
+    CONVERTED(HandleTrackVibrato);
+    CONVERTED(ApplyPitchSlide);
+    CONVERTED(HandleNoise);
+    CONVERTED(ReadNoiseSample);
+    CONVERTED(ParseMusic);
+    CONVERTED(RestoreVolume);
+    CONVERTED(ParseSFXOrCry);
+    CONVERTED(GetNoiseSample);
+    CONVERTED(ParseMusicCommand);
+    CONVERTED(Music_Ret);
+    CONVERTED(Music_Call);
+    CONVERTED(Music_Jump);
+    CONVERTED(Music_Loop);
+    CONVERTED(Music_SetCondition);
+    CONVERTED(Music_JumpIf);
+    CONVERTED(MusicEE);
+    CONVERTED(MusicNone);
+    CONVERTED(MusicE2);
+    CONVERTED(Music_Vibrato);
+    CONVERTED(Music_PitchSlide);
+    CONVERTED(Music_PitchOffset);
+    CONVERTED(MusicE7);
+    CONVERTED(Music_DutyCyclePattern);
+    CONVERTED(MusicE8);
+    CONVERTED(Music_ToggleSFX);
+    CONVERTED(Music_ToggleNoise);
+    CONVERTED(Music_SFXToggleNoise);
+    CONVERTED(Music_NoteType);
+    CONVERTED(Music_PitchSweep);
+    CONVERTED(Music_DutyCycle);
+    CONVERTED(Music_VolumeEnvelope);
+    CONVERTED(Music_Tempo);
+    CONVERTED(Music_Octave);
+    CONVERTED(Music_Transpose);
+    CONVERTED(Music_StereoPanning);
+    CONVERTED(Music_ForceStereoPanning);
+    CONVERTED(Music_Volume);
+    CONVERTED(Music_TempoRelative);
+    CONVERTED(Music_SFXPriorityOn);
+    CONVERTED(Music_SFXPriorityOff);
+    CONVERTED(Music_RestartChannel);
+    CONVERTED(Music_NewSong);
+    // CONVERTED(GetMusicByte);
+    // CONVERTED(GetFrequency);
+    // CONVERTED(SetNoteDuration);
+    // CONVERTED(SetGlobalTempo);
+    CONVERTED(StartChannel);
+    CONVERTED(SetLRTracks);
+    // CONVERTED(v_PlayMusic);
+    CONVERTED(v_PlayCry);
+    CONVERTED(v_PlaySFX);
+    CONVERTED(PlayStereoSFX);
+    // CONVERTED(LoadChannel);
+    // CONVERTED(ChannelInit);
+    // CONVERTED(LoadMusicByte);
+    CONVERTED(GetLRTracks);
+    CONVERTED(ClearChannels);
+    // CONVERTED(ClearChannel);
+    REDIRECTED(PlayTrainerEncounterMusic);
 }

@@ -787,9 +787,9 @@
     do {                                                                   \
         uint32_t dest = x;                                                 \
         gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000); \
-        if (containedFunc[dest]) {                                         \
+        if (convertedFunc[dest]) {                                         \
             DBG_CALL(dest);                                                \
-            containedFunc[dest]();                                         \
+            convertedFunc[dest]();                                         \
             DBG_RET(dest);                                                 \
         } else {                                                           \
             if (!gb.redirected) return;                                    \
@@ -829,9 +829,9 @@
         gb.cpu_reg.pc += (int8_t)x + 1;                                                                                       \
         if (gb.redirected) {                                                                                                  \
             uint32_t dest = gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE));      \
-            if (containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
+            if (convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
                 DBG_CALL(dest);                                                                                               \
-                containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
+                convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
                 DBG_RET(dest);                                                                                                \
                 return;                                                                                                       \
             }                                                                                                                 \
@@ -898,9 +898,9 @@
     do {                                                                   \
         uint32_t dest = x;                                                 \
         gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000); \
-        if (containedFunc[dest]) {                                         \
+        if (convertedFunc[dest]) {                                         \
             DBG_CALL(dest);                                                \
-            containedFunc[dest]();                                         \
+            convertedFunc[dest]();                                         \
             DBG_RET(dest);                                                 \
         } else {                                                           \
             if (!gb.redirected) return;                                    \
@@ -952,9 +952,9 @@
         gb.cpu_reg.pc = dest;                                                                                                 \
         if (gb.redirected) {                                                                                                  \
             dest = gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE));               \
-            if (containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
+            if (convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
                 DBG_CALL(dest);                                                                                               \
-                containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
+                convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
                 DBG_RET(dest);                                                                                                \
                 return;                                                                                                       \
             }                                                                                                                 \
@@ -986,9 +986,9 @@
         gb.cpu_reg.pc = gb.cpu_reg.hl;                                                                                        \
         if (gb.redirected) {                                                                                                  \
             uint32_t dest = gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE));      \
-            if (containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
+            if (convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))]) { \
                 DBG_CALL(dest);                                                                                               \
-                containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
+                convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
                 DBG_RET(dest);                                                                                                \
                 return;                                                                                                       \
             }                                                                                                                 \
@@ -999,11 +999,11 @@
     do {                                                                                 \
         INC_PC(3);                                                                       \
         uint32_t dest = x;                                                               \
-        if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+        if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
         gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000);               \
-        if (containedFunc[dest]) {                                                       \
+        if (convertedFunc[dest]) {                                                       \
             DBG_CALL(dest);                                                              \
-            containedFunc[dest]();                                                       \
+            convertedFunc[dest]();                                                       \
             DBG_RET(dest);                                                               \
         } else {                                                                         \
             if (!gb.redirected) return;                                                  \
@@ -1018,11 +1018,11 @@
         INC_PC(3);                                                                           \
         IF2_C(                                                                               \
             uint32_t dest = x;                                                               \
-            if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+            if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
             gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000);               \
-            if (containedFunc[dest]) {                                                       \
+            if (convertedFunc[dest]) {                                                       \
                 DBG_CALL(dest);                                                              \
-                containedFunc[dest]();                                                       \
+                convertedFunc[dest]();                                                       \
                 DBG_RET(dest);                                                               \
             } else {                                                                         \
                 if (!gb.redirected) return;                                                  \
@@ -1037,11 +1037,11 @@
         INC_PC(3);                                                                           \
         IF2_NC(                                                                              \
             uint32_t dest = x;                                                               \
-            if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+            if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
             gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000);               \
-            if (containedFunc[dest]) {                                                       \
+            if (convertedFunc[dest]) {                                                       \
                 DBG_CALL(dest);                                                              \
-                containedFunc[dest]();                                                       \
+                convertedFunc[dest]();                                                       \
                 DBG_RET(dest);                                                               \
             } else {                                                                         \
                 if (!gb.redirected) return;                                                  \
@@ -1056,11 +1056,11 @@
         INC_PC(3);                                                                           \
         IF2_Z(                                                                               \
             uint32_t dest = x;                                                               \
-            if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+            if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
             gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000);               \
-            if (containedFunc[dest]) {                                                       \
+            if (convertedFunc[dest]) {                                                       \
                 DBG_CALL(dest);                                                              \
-                containedFunc[dest]();                                                       \
+                convertedFunc[dest]();                                                       \
                 DBG_RET(dest);                                                               \
             } else {                                                                         \
                 if (!gb.redirected) return;                                                  \
@@ -1075,11 +1075,11 @@
         INC_PC(3);                                                                           \
         IF2_NZ(                                                                              \
             uint32_t dest = x;                                                               \
-            if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+            if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
             gb.cpu_reg.pc = dest < 0x4000 ? dest : ((dest & 0x3FFF) | 0x4000);               \
-            if (containedFunc[dest]) {                                                       \
+            if (convertedFunc[dest]) {                                                       \
                 DBG_CALL(dest);                                                              \
-                containedFunc[dest]();                                                       \
+                convertedFunc[dest]();                                                       \
                 DBG_RET(dest);                                                               \
             } else {                                                                         \
                 if (!gb.redirected) return;                                                  \
@@ -1098,8 +1098,8 @@
         if (gb.redirected) {                                                                                                  \
             dest = gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE));               \
             DBG_CALL(dest);                                                                                                   \
-            if (containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))])   \
-                containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
+            if (convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))])   \
+                convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
             else                                                                                                              \
                 gb_run_frame();                                                                                               \
             DBG_RET(dest);                                                                                                    \
@@ -1131,11 +1131,11 @@
     do {                                                                                 \
         INC_PC(1);                                                                       \
         uint32_t dest = (x)&0x38;                                                        \
-        if ((!gb.redirected) && (redirectFunc[dest] || !(containedFunc[dest]))) PUSH_PC; \
+        if ((!gb.redirected) && (redirectFunc[dest] || !(convertedFunc[dest]))) PUSH_PC; \
         gb.cpu_reg.pc = dest;                                                            \
-        if (containedFunc[dest]) {                                                       \
+        if (convertedFunc[dest]) {                                                       \
             DBG_CALL(dest);                                                              \
-            containedFunc[dest]();                                                       \
+            convertedFunc[dest]();                                                       \
             DBG_RET(dest);                                                               \
         } else {                                                                         \
             if (!gb.redirected) return;                                                  \
@@ -1152,8 +1152,8 @@
         gb.cpu_reg.pc = dest;                                                                                                 \
         if (gb.redirected) {                                                                                                  \
             DBG_CALL(dest);                                                                                                   \
-            if (containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))])   \
-                containedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
+            if (convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))])   \
+                convertedFunc[gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE))](); \
             else                                                                                                              \
                 gb_run_frame();                                                                                               \
             DBG_RET(dest);                                                                                                    \

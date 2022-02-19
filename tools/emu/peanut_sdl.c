@@ -18,7 +18,7 @@
 struct gb_s gb;
 #define ROM_SIZE 0x200000
 void (*redirectFunc[ROM_SIZE])(void);
-void (*containedFunc[ROM_SIZE])(void);
+void (*convertedFunc[ROM_SIZE])(void);
 #include "peanut_gb.h"
 #include "../../home/lcd.h"
 #include "rom_patches.h"
@@ -1090,15 +1090,10 @@ void gb_run_frame(void) {
             if (gb.cpu_reg.pc == 0x18) gb.gb_frame = 1;
             if (gb.cpu_reg.pc < 0x8000) {
                 int absAddress = gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE));
-                if (redirectFunc[absAddress] != NULL) {
+                if (convertedFunc[absAddress] != NULL) {
                     // PEEK("");
                     // printf("FUN: %x\n", absAddress);
-                    redirectFunc[absAddress]();
-                    /*if (gb.redirected) {
-                        if (!(--gb.stackCalls[gb.nestedCalls])) return;
-                        POP_PC;
-                    }*/
-                    // printf("RET: %x\n", gb.cpu_reg.pc + (gb.cpu_reg.pc < 0x4000 ? 0 : ((gb.selected_rom_bank - 1) * ROM_BANK_SIZE)));
+                    convertedFunc[absAddress]();
                     if (gb.cpu_reg.pc == 0x18) gb_finish_frame();
                     return;
                 }

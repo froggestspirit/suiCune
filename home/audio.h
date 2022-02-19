@@ -1,6 +1,5 @@
 void InitSound(void);
 void UpdateSound(void);
-void v_LoadMusicByte(void);
 void PlayMusic(void);
 void PlayMusic2(void);
 void PlayCry(void);

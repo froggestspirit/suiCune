@@ -433,6 +433,10 @@
 //#include "engine/movie/splash.h"
 //#include "engine/movie/intro.h"
 
+// SECTION "Audio", ROMX
+
+#include "audio.h"
+
 // SECTION "bank3E", ROMX
 
 //#include "engine/gfx/load_font.h"

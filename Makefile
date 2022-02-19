@@ -12,6 +12,7 @@ EXE	:= $(NAME)
 TARGET := $(NAME)
 SRCS   := tools/emu/peanut_sdl.c tools/emu/minigb_apu/minigb_apu.c \
 	$(wildcard home/*.c) \
+	$(wildcard audio/*.c) \
 	$(wildcard engine/battle_anims/*.c) \
 	$(wildcard engine/gfx/*.c) \
 	$(wildcard engine/menus/*.c) \
@@ -53,6 +54,7 @@ $(TARGET): $(OBJS)
 clean:
 	$(RM) $(SRCS:.c=.$(OBJEXT)) $(TARGET) \
 	$(wildcard home/*.o) \
+	$(wildcard audio/*.o) \
 	$(wildcard engine/battle_anims/*.o) \
 	$(wildcard engine/gfx/*.o) \
 	$(wildcard engine/menus/*.o) \

@@ -2,7 +2,7 @@
 
 This is an attempt at a PC port of Pokemon Crystal. It currently runs, but is not recommended to be used for any projects until completed. Additionally, it may be prone to crashes/buggy behavior. The maintainer is not to be held liable for any mishaps.
 
-The goal is to get assets to load from outside files, and to be able to rewrite parts of the game in C. The game currently relies on a base rom (Not provided). Eventually, this requirement should be phased out.
+The goal is to get assets to load from outside files, and to be able to rewrite parts of the game in C. The game currently relies on a base rom (Not provided). Eventually, this requirement should be phased out. A good example to look at is audio/engine.c
 
 
 **Overview**
@@ -44,9 +44,7 @@ Occasionally, a modification to convASM.py may need to be made to handle future 
 
 **Process (Finalizing/Converting a function)**
 
-After a function is converted, it can be rewritten. Pick the function, and follow the process below:
-
-- Change the function's "REDIRECTED" macro to "CONVERTED" in functions.h
+After a function is converted, it can be rewritten. Keep in mind that if a function is not set to "REDIRECTED" or "CONVERTED" in functions.h, it will not be called, except for explicit calls to the function (see audio/engine.c). In some cases, the "REDIRECTED" or "CONVERTED" macro should be removed in case the function is rewritten to take parameters, or return values (again see audio/engine.c). Currently there should not be any functional difference between "REDIRECTED" and "CONVERTED" in functions.h. This was a left over from the old emulation method in the Silver port, but the two can still be used to denote which functions have been rewritten, that still might have calls from code that's not converted.
 
 
 **Things to note**

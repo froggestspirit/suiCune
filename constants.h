@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 extern void (*redirectFunc[])(void);
-extern void (*containedFunc[])(void);
+extern void (*convertedFunc[])(void);
 #include <stdio.h>
 #include "tools/emu/peanut_gb.h"
 
