@@ -2,9 +2,7 @@
 
 This is an attempt at a PC port of Pokemon Crystal. It currently runs, but is not recommended to be used for any projects until completed. Additionally, it may be prone to crashes/buggy behavior. The maintainer is not to be held liable for any mishaps.
 
-The goal is to get assets to load from outside files, and to be able to rewrite parts of the game in C. The game currently relies on a modified rom (Not provided, but can be compiled). Eventually, this requirement should be phased out.
-
-For an example, check C/audio/engine.c. At the time of writing, majority of this file has been converted to C, and is ran in-place of the ROM's opcodes.
+The goal is to get assets to load from outside files, and to be able to rewrite parts of the game in C. The game currently relies on a base rom (Not provided). Eventually, this requirement should be phased out.
 
 
 **Overview**
