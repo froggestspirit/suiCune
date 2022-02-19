@@ -1,0 +1,13 @@
+void MobileAPI(void);
+void ReturnMobileAPI(void);
+void MobileReceive(void);
+void MobileTimer(void);
+void Function3ed7(void);
+void Function3eea(void);
+void Function3efd(void);
+void Function3f20(void);
+void Function3f35(void);
+void MobileHome_PlaceBox(void);
+void Function3f7c(void);
+void Function3f88(void);
+void Function3f9f(void);

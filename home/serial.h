@@ -1,0 +1,12 @@
+void Serial(void);
+void Serial_ExchangeBytes(void);
+void Serial_ExchangeByte(void);
+void CheckLinkTimeoutFramesNonzero(void);
+void SerialDisconnected(void);
+void Serial_ExchangeSyncBytes(void);
+void Serial_PrintWaitingTextAndSyncAndExchangeNybble(void);
+void Serial_SyncAndExchangeNybble(void);
+void WaitLinkTransfer(void);
+void LinkTransfer(void);
+void LinkDataReceived(void);
+void SetBitsForTimeCapsuleRequestIfNotLinked(void);

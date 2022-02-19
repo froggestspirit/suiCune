@@ -1,0 +1,9 @@
+void DMATransfer(void);
+void UpdateBGMapBuffer(void);
+void WaitTop(void);
+void UpdateBGMap(void);
+void Serve1bppRequest(void);
+void Serve2bppRequest(void);
+void Serve2bppRequest_VBlank(void);
+void v_Serve2bppRequest(void);
+void AnimateTileset(void);

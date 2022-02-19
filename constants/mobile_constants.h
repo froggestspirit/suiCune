@@ -1,0 +1,65 @@
+// MobileAPI calls (see lib/mobile/main.asm:_MobileAPI)
+enum {  // increases by 2?
+    MOBILEAPI_00,
+    MOBILEAPI_01,
+    MOBILEAPI_02,
+    MOBILEAPI_03,
+    MOBILEAPI_04,
+    MOBILEAPI_05,
+    MOBILEAPI_06,
+    MOBILEAPI_07,
+    MOBILEAPI_08,
+    MOBILEAPI_09,
+    MOBILEAPI_0A,
+    MOBILEAPI_0B,
+    MOBILEAPI_0C,
+    MOBILEAPI_0D,
+    MOBILEAPI_0E,
+    MOBILEAPI_0F,
+    MOBILEAPI_10,
+    MOBILEAPI_11,
+    MOBILEAPI_12,
+    MOBILEAPI_13,
+    MOBILEAPI_14,
+    MOBILEAPI_15,
+    MOBILEAPI_16,
+    MOBILEAPI_17,
+    MOBILEAPI_SETTIMER,
+    MOBILEAPI_19,
+    MOBILEAPI_1A,
+    MOBILEAPI_1B,
+    MOBILEAPI_1C,
+    MOBILEAPI_1D,
+    MOBILEAPI_1E,
+    MOBILEAPI_1F,
+    MOBILEAPI_20,
+    MOBILEAPI_21,
+};
+
+// MobileEZChatCategoryPointers indexes (see mobile/fixed_words.asm)
+enum {
+    EZCHAT_POKEMON,
+    EZCHAT_TYPES,
+    EZCHAT_GREETINGS,
+    EZCHAT_PEOPLE,
+    EZCHAT_BATTLE,
+    EZCHAT_EXCLAMATIONS,
+    EZCHAT_CONVERSATION,
+    EZCHAT_FEELINGS,
+    EZCHAT_CONDITIONS,
+    EZCHAT_LIFE,
+    EZCHAT_HOBBIES,
+    EZCHAT_ACTIONS,
+    EZCHAT_TIME,
+    EZCHAT_FAREWELLS,
+    EZCHAT_THISANDTHAT,
+};
+
+#define NUM_KANA 45  // length of SortedPokemon table (see mobile/fixed_words.asm)
+
+#define MOBILE_LOGIN_PASSWORD_LENGTH 17
+#define MOBILE_PHONE_NUMBER_LENGTH 20
+
+// Maximum amount of time allowed for mobile battles each day
+#define MOBILE_BATTLE_ALLOWED_SECONDS 0
+#define MOBILE_BATTLE_ALLOWED_MINUTES 10

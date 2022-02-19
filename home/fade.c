@@ -1,0 +1,214 @@
+#include "../constants.h"
+#include "fade.h"
+
+//  Functions to fade the screen in and out.
+
+void TimeOfDayFade(void){
+    //  //  unreferenced
+    LD_A_addr(wTimeOfDayPal);
+    LD_B_A;
+    LD_HL(mIncGradGBPalTable_11);
+    LD_A_L;
+    SUB_A_B;
+    LD_L_A;
+    IF_NC goto okay;
+    DEC_H;
+
+
+okay:
+        LD_A_hli;
+    LDH_addr_A(rBGP);
+    LD_A_hli;
+    LDH_addr_A(rOBP0);
+    LD_A_hli;
+    LDH_addr_A(rOBP1);
+    RET;
+
+}
+
+void RotateFourPalettesRight(void){
+        LDH_A_addr(hCGB);
+    AND_A_A;
+    IF_Z goto dmg;
+    LD_HL(mIncGradGBPalTable_00);
+    LD_B(4);
+    JR(mRotatePalettesRight);
+
+
+dmg:
+        LD_HL(mIncGradGBPalTable_08);
+    LD_B(4);
+    JR(mRotatePalettesRight);
+
+}
+
+void RotateThreePalettesRight(void){
+        LDH_A_addr(hCGB);
+    AND_A_A;
+    IF_Z goto dmg;
+    LD_HL(mIncGradGBPalTable_05);
+    LD_B(3);
+    JR(mRotatePalettesRight);
+
+
+dmg:
+        LD_HL(mIncGradGBPalTable_13);
+    LD_B(3);
+    return RotatePalettesRight();
+}
+
+void RotatePalettesRight(void){
+    //  Rotate palettes to the right and fill with loaded colors from the left
+//  If we're already at the leftmost color, fill with the leftmost color
+    PUSH_DE;
+    LD_A_hli;
+    CALL(aDmgToCgbBGPals);
+    LD_A_hli;
+    LD_E_A;
+    LD_A_hli;
+    LD_D_A;
+    CALL(aDmgToCgbObjPals);
+    LD_C(8);
+    CALL(aDelayFrames);
+    POP_DE;
+    DEC_B;
+    JR_NZ (mRotatePalettesRight);
+    RET;
+
+}
+
+void RotateFourPalettesLeft(void){
+        LDH_A_addr(hCGB);
+    AND_A_A;
+    IF_Z goto dmg;
+    LD_HL(mIncGradGBPalTable_04 - 1);
+    LD_B(4);
+    JR(mRotatePalettesLeft);
+
+
+dmg:
+        LD_HL(mIncGradGBPalTable_12 - 1);
+    LD_B(4);
+    JR(mRotatePalettesLeft);
+
+}
+
+void RotateThreePalettesLeft(void){
+        LDH_A_addr(hCGB);
+    AND_A_A;
+    IF_Z goto dmg;
+    LD_HL(mIncGradGBPalTable_07 - 1);
+    LD_B(3);
+    JR(mRotatePalettesLeft);
+
+
+dmg:
+        LD_HL(mIncGradGBPalTable_15 - 1);
+    LD_B(3);
+    return RotatePalettesLeft();
+}
+
+void RotatePalettesLeft(void){
+    //  Rotate palettes to the left and fill with loaded colors from the right
+//  If we're already at the rightmost color, fill with the rightmost color
+    PUSH_DE;
+    LD_A_hld;
+    LD_D_A;
+    LD_A_hld;
+    LD_E_A;
+    CALL(aDmgToCgbObjPals);
+    LD_A_hld;
+    CALL(aDmgToCgbBGPals);
+    LD_C(8);
+    CALL(aDelayFrames);
+    POP_DE;
+    DEC_B;
+    JR_NZ (mRotatePalettesLeft);
+    RET;
+
+}
+
+void IncGradGBPalTable_00(void){
+    //dc 3,3,3,3, 3,3,3,3, 3,3,3,3
+    return IncGradGBPalTable_01();
+}
+
+void IncGradGBPalTable_01(void){
+    //dc 3,3,3,2, 3,3,3,2, 3,3,3,2
+    return IncGradGBPalTable_02();
+}
+
+void IncGradGBPalTable_02(void){
+    //dc 3,3,2,1, 3,3,2,1, 3,3,2,1
+    return IncGradGBPalTable_03();
+}
+
+void IncGradGBPalTable_03(void){
+    //dc 3,2,1,0, 3,2,1,0, 3,2,1,0
+
+    return IncGradGBPalTable_04();
+}
+
+void IncGradGBPalTable_04(void){
+    //dc 3,2,1,0, 3,2,1,0, 3,2,1,0
+    return IncGradGBPalTable_05();
+}
+
+void IncGradGBPalTable_05(void){
+    //dc 2,1,0,0, 2,1,0,0, 2,1,0,0
+    return IncGradGBPalTable_06();
+}
+
+void IncGradGBPalTable_06(void){
+    //dc 1,0,0,0, 1,0,0,0, 1,0,0,0
+
+    return IncGradGBPalTable_07();
+}
+
+void IncGradGBPalTable_07(void){
+    //dc 0,0,0,0, 0,0,0,0, 0,0,0,0
+//                            bgp      obp1     obp2
+    return IncGradGBPalTable_08();
+}
+
+void IncGradGBPalTable_08(void){
+    //dc 3,3,3,3, 3,3,3,3, 3,3,3,3
+    return IncGradGBPalTable_09();
+}
+
+void IncGradGBPalTable_09(void){
+    //dc 3,3,3,2, 3,3,3,2, 3,3,2,0
+    return IncGradGBPalTable_10();
+}
+
+void IncGradGBPalTable_10(void){
+    //dc 3,3,2,1, 3,2,1,0, 3,2,1,0
+    return IncGradGBPalTable_11();
+}
+
+void IncGradGBPalTable_11(void){
+    //dc 3,2,1,0, 3,1,0,0, 3,2,0,0
+
+    return IncGradGBPalTable_12();
+}
+
+void IncGradGBPalTable_12(void){
+    //dc 3,2,1,0, 3,1,0,0, 3,2,0,0
+    return IncGradGBPalTable_13();
+}
+
+void IncGradGBPalTable_13(void){
+    //dc 2,1,0,0, 2,0,0,0, 2,1,0,0
+    return IncGradGBPalTable_14();
+}
+
+void IncGradGBPalTable_14(void){
+    //dc 1,0,0,0, 1,0,0,0, 1,0,0,0
+
+    return IncGradGBPalTable_15();
+}
+
+void IncGradGBPalTable_15(void){
+    //dc 0,0,0,0, 0,0,0,0, 0,0,0,0
+
+}

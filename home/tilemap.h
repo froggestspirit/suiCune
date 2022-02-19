@@ -1,0 +1,16 @@
+void ClearBGPalettes(void);
+void WaitBGMap(void);
+void WaitBGMap2(void);
+void IsCGB(void);
+void ApplyTilemap(void);
+void CGBOnly_CopyTilemapAtOnce(void);
+void CopyTilemapAtOnce(void);
+void CopyAttrmapAndTilemapToWRAMBank3(void);
+void v_CopyTilemapAtOnce(void);
+void v_CopyTilemapAtOnce_CopyBGMapViaStack(void);
+void SetPalettes(void);
+void ClearPalettes(void);
+void GetMemSGBLayout(void);
+void GetSGBLayout(void);
+void SetHPPal(void);
+void GetHPPal(void);
