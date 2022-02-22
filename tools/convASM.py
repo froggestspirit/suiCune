@@ -333,7 +333,7 @@ def main():
     parser.add_argument("fileName")
     args = parser.parse_args()
 
-    with open(charMapFile, "r") as inFile:
+    with open(charMapFile, "r", encoding="utf8") as inFile:
         charFile = inFile.read().split("\n")
     for i in charFile:
         if i[1:8] == "charmap":
@@ -346,14 +346,14 @@ def main():
             start = i[end:].index("$") + end + 1
             charMapEqu.append(f"0x{i[start:start+2]}")
 
-    with open(funcMapFile, "r") as inFile:  # Get a list of functions known and their addresses
+    with open(funcMapFile, "r", encoding="utf8") as inFile:  # Get a list of functions known and their addresses
         funcsFile = inFile.read().split("\n")
     funcsKnown = list(i.split(",")[0][8:] for i in funcsFile if i[:7] == "FUNCMAP")
     funcsKnownAddr = list(i.split(",")[1].strip(" )") for i in funcsFile if i[:7] == "FUNCMAP")
 
     funcsConverted = []  # Get a list of functions already added to functionsFile, so they aren't added again
     if os.path.exists(functionsFile):
-        with open(functionsFile, "r") as inFile:
+        with open(functionsFile, "r", encoding="utf8") as inFile:
             funcsFile = inFile.read().split("\n")
         for i in funcsFile:
             if re.search("(CONVERTED|REDIRECTED)", i):
@@ -363,7 +363,7 @@ def main():
         while len(funcsFile[-1]) < 2:  # Trim the end of the file, including the closing }
             funcsFile.pop()
 
-    with open(args.fileName, "r") as inFile:
+    with open(args.fileName, "r", encoding="utf8") as inFile:
         asmFile = inFile.read().replace(tab, "\t", 1).split("\n")
     asm = []
     comment = []
@@ -375,7 +375,7 @@ def main():
         comment.append("")
         asm.append("}")
     if not os.path.exists(args.fileName.replace(".asm", ".c")):
-        with open(args.fileName.replace(".asm", ".c"), "w") as cFile:
+        with open(args.fileName.replace(".asm", ".c"), "w", encoding="utf8") as cFile:
             cFile.write('#include "../constants.h"\n')
             cFile.write(f"#include \"{os.path.basename(args.fileName.replace('.asm', '.h'))}\"\n\n")
             for ln, line in enumerate(asm):
@@ -384,7 +384,7 @@ def main():
                 cFile.write("\n")
 
     if not os.path.exists(args.fileName.replace(".asm", ".h")):
-        with open(args.fileName.replace(".asm", ".h"), "w") as cFile:
+        with open(args.fileName.replace(".asm", ".h"), "w", encoding="utf8") as cFile:
             for f in funcList:
                 cFile.write(f"void {f}(void);\n")
             for inc in includes:
@@ -393,7 +393,7 @@ def main():
     if len(newFuncs):
         if os.path.exists(functionsFile):
             os.remove(functionsFile)
-            with open(functionsFile, "w") as fFile:
+            with open(functionsFile, "w", encoding="utf8") as fFile:
                 for line in funcsFile:
                     fFile.write(f"{line}\n")
                 fFile.write(f"\n{tab}// {args.fileName.replace('.asm', '.c').strip('./')}\n")
