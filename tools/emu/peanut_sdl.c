@@ -3490,7 +3490,7 @@ void cleanup(void) {
 #endif
 }
 
-int main(void) {
+int main(int argc, char* argv[]) {
     atexit(cleanup);
     enum gb_init_error_e gb_ret;
     int ret = EXIT_SUCCESS;
