@@ -5,8 +5,11 @@
 // - MoveDescriptions (see data/moves/descriptions.asm)
 // - BattleAnimations (see data/moves/animations.asm)
 
+//SING is a macro for _SING in Windows SDK
+#ifdef _WIN32
 #ifdef SING
 #undef SING
+#endif
 #endif
 
 enum {

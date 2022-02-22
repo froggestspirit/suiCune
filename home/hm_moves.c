@@ -20,7 +20,7 @@ void IsHMMove(void){
     LD_DE(1);
     JP(mIsInArray);
 
-
+/* Currently not used?
 HMMoves:
         //db ['CUT'];
     //db ['FLY'];
@@ -30,5 +30,5 @@ HMMoves:
     //db ['WATERFALL'];
     //db ['WHIRLPOOL'];
     //db ['-1'];  // end
-    ;
+*/
 }

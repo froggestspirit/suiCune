@@ -3641,6 +3641,7 @@ GetObjectStructPointer:
     LD_B_hl;
     RET;
 
+/* Currently not used?
 Addresses:
 
     // dw ['wPlayerStruct'];
@@ -3656,5 +3657,5 @@ Addresses:
     // dw ['wObject10Struct'];
     // dw ['wObject11Struct'];
     // dw ['wObject12Struct'];
-    ;
+*/
 }

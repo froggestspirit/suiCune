@@ -56,13 +56,6 @@ workspace "suiCune"
 		}
 		
 		files {
-			".\\tools\\emu\\peanut_sdl.c",
-			".\\tools\\emu\\minigb_apu\\minigb_apu.c",
-
-			".\\home\\*.c",
-			".\\audio\\*.c",
-            ".\\engine\\battle_anims\\*.c",
-            ".\\engine\\gfx\\*.c",
-            ".\\engine\\menus\\*.c",
-            ".\\engine\\overworld\\*.c",
+			".\\**.c",
+			".\\**.h",
 		}

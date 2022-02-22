@@ -3734,7 +3734,10 @@ out:
     /* If the save file name was automatically generated (which required memory
      * allocated on the help), then free it here. */
     free(save_file_name);
+
+#ifndef _WIN32  //Crashes
     free(rom_file_name);
+#endif
 
     return ret;
 }

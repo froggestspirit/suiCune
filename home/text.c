@@ -1286,6 +1286,7 @@ void TextCommand_DAY(void) {
     POP_HL;
     RET;
 
+/*Currently not used?
 Days:
     // dw ['.Sun'];
     // dw ['.Mon'];
@@ -1318,5 +1319,5 @@ Satur:
 
 Day:
     //    db "DAY@"
-    ;
+*/
 }
