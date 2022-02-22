@@ -145,5 +145,5 @@ MovementData:
     //big_step ['UP']
     //big_step ['LEFT']
     //big_step ['RIGHT']
-
+    ;
 }

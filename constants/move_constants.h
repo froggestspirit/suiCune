@@ -4,6 +4,11 @@
 // - MoveNames (see data/moves/names.asm)
 // - MoveDescriptions (see data/moves/descriptions.asm)
 // - BattleAnimations (see data/moves/animations.asm)
+
+#ifdef SING
+#undef SING
+#endif
+
 enum {
     NO_MOVE,      // 00
     POUND,        // 01

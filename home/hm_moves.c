@@ -30,5 +30,5 @@ HMMoves:
     //db ['WATERFALL'];
     //db ['WHIRLPOOL'];
     //db ['-1'];  // end
-
+    ;
 }

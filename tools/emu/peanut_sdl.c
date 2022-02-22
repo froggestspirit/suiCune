@@ -15,13 +15,15 @@
 #include <SDL.h>
 
 #include "minigb_apu/minigb_apu.h"
+#include "peanut_gb.h"
+#include "../../home/lcd.h"
+#include "rom_patches.h"
+
 struct gb_s gb;
 #define ROM_SIZE 0x200000
 void (*redirectFunc[ROM_SIZE])(void);
 void (*convertedFunc[ROM_SIZE])(void);
-#include "peanut_gb.h"
-#include "../../home/lcd.h"
-#include "rom_patches.h"
+
 struct priv_t {
     /* Pointer to allocated memory holding GB file. */
     uint8_t *rom;
@@ -2047,8 +2049,7 @@ void gb_run_frame(void) {
                     _RST(0x38);
                     break;  // RST
                 case 0xCB:  /* CB INST */
-                    uint8_t op = gb_read(gb.cpu_reg.pc++);
-                    switch (op) {
+                    switch (gb_read(gb.cpu_reg.pc++)) {
                         case 0x00:
                             RLC_B;
                             break;
@@ -3484,7 +3485,9 @@ void cleanup(void) {
     /* If the save file name was automatically generated (which required memory
      * allocated on the help), then free it here. */
     free(save_file_name);
+#ifndef _WIN32  //Crashes, not sure about other plats
     free(rom_file_name);
+#endif
 }
 
 int main(void) {

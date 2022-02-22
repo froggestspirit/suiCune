@@ -22,8 +22,9 @@ gfx/pokemon/*/frames.asm
 *.map
 *.sym
 
-# tool binaries
+# tool binaries and directories
 *.exe
+build/
 
 # precompiled python
 *.pyc
@@ -48,9 +49,12 @@ used_space.png
 # http://www.vim.org/scripts/script.php?script_id=441
 .lvimrc
 
-
-# vscode
+# vs + vscode
+.vs/
 .vscode/
+
+# dependencies
+deps/
 
 # swap files for vim and gedit
 .*.swp

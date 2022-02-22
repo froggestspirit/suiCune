@@ -22,7 +22,7 @@ wait:
 }
 
 void VBlank(void) {
-        PUSH_AF;
+    PUSH_AF;
     PUSH_BC;
     PUSH_DE;
     PUSH_HL;

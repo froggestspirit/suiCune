@@ -3656,4 +3656,5 @@ Addresses:
     // dw ['wObject10Struct'];
     // dw ['wObject11Struct'];
     // dw ['wObject12Struct'];
+    ;
 }

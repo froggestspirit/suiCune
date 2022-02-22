@@ -77,7 +77,7 @@ struct Channel {
     uint8_t field2e;
     uint8_t field2f;
     uint16_t field30;
-} __attribute__((packed));
+};
 
 void v_InitSound(void);
 void MusicFadeRestart(void);
