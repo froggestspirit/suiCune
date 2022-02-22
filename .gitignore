@@ -48,6 +48,10 @@ used_space.png
 # http://www.vim.org/scripts/script.php?script_id=441
 .lvimrc
 
+
+# vscode
+.vscode/
+
 # swap files for vim and gedit
 .*.swp
 *~
