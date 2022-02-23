@@ -8,7 +8,13 @@ RM	:= rm -f
 EXEOUT	:= -o
 EXTRA_CFLAGS := -std=c99 -Wall -Wextra -Wno-unused-label -Og -g3
 EXE	:= $(NAME)
-STATIC := yes
+
+# File extension ".exe" is automatically appended on MinGW and MSVC builds, even
+# if we don't ask for it.
+ifeq ($(OS),Windows_NT)
+	STATIC := yes
+	EXE := $(NAME).exe
+endif
 
 TARGET := $(NAME)
 SRCS   := tools/emu/peanut_sdl.c tools/emu/minigb_apu/minigb_apu.c \
@@ -29,12 +35,6 @@ else
 endif
 
 LDLIBS += -lm
-
-# File extension ".exe" is automatically appended on MinGW and MSVC builds, even
-# if we don't ask for it.
-ifeq ($(OS),Windows_NT)
-	EXE := $(NAME).exe
-endif
 
 CFLAGS += $(EXTRA_CFLAGS)
 
