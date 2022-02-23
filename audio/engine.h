@@ -70,9 +70,9 @@ struct Channel {
     uint16_t field25;
 
     uint16_t pitchOffset;
-    uint8_t field29;   //unused
-    uint16_t field2a;  //unused
-    uint8_t field2c;   //unused
+    uint8_t field29;   // unused
+    uint16_t field2a;  // unused
+    uint8_t field2c;   // unused
     uint8_t noteLength;
     uint8_t field2e;
     uint8_t field2f;
