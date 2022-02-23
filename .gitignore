@@ -24,6 +24,7 @@ gfx/pokemon/*/frames.asm
 
 # tool binaries
 *.exe
+suiCune
 
 # precompiled python
 *.pyc

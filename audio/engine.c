@@ -13,29 +13,52 @@
 //      FadeMusic
 //      PlayStereoSFX
 
-struct Channel *chan[8];
+struct Channel chan[8];
 struct Channel *curChan;
 int curChannel;
-uint16_t channelPointers[8] = {wChannel1,
-                               wChannel2,
-                               wChannel3,
-                               wChannel4,
-                               wChannel5,
-                               wChannel6,
-                               wChannel7,
-                               wChannel8};
 
 uint8_t *noiseSampleAddress;
 uint8_t channelJumpCondition[4];
 
 void v_InitSound(void) {  //  restart sound operation, clear all relevant hardware registers & wram
-    for (int i = 0; i < NUM_CHANNELS; i++)
-        chan[i] = gb_pointer(channelPointers[i]);
     MusicOff();
     ClearChannels();
-    for (int i = wAudio; i < wAudioEnd; i++)
-        gb_write(i, 0);
+    for (int i = 0; i < NUM_CHANNELS; i++)
+        ChannelInit(i);
+    gb_write(wCurTrackDuty, 0);
+    gb_write(wCurTrackVolumeEnvelope, 0);
+    gb_write(wCurTrackFrequency, 0);
+    gb_write(wUnusedBCDNumber, 0);
+    gb_write(wCurNoteDuration, 0);
+    gb_write(wCurMusicByte, 0);
+    gb_write(wCurChannel, 0);
     gb_write(wVolume, MAX_VOLUME);
+    gb_write(wSoundOutput, 0);
+    gb_write(wPitchSweep, 0);
+    gb_write(wMusicID, 0);
+    gb_write(wMusicBank, 0);
+    gb_write(wNoiseSampleAddress, 0);
+    gb_write(wNoiseSampleDelay, 0);
+    gb_write(wMusicNoiseSampleSet, 0);
+    gb_write(wSFXNoiseSampleSet, 0);
+    gb_write(wLowHealthAlarm, 0);
+    gb_write(wMusicFade, 0);
+    gb_write(wMusicFadeCount, 0);
+    gb_write(wMusicFadeID, 0);
+    gb_write(wCryPitch, 0);
+    gb_write(wCryLength, 0);
+    gb_write(wLastVolume, 0);
+    gb_write(wUnusedMusicF9Flag, 0);
+    gb_write(wSFXPriority, 0);
+    gb_write(wChannel1JumpCondition, 0);
+    gb_write(wChannel2JumpCondition, 0);
+    gb_write(wChannel3JumpCondition, 0);
+    gb_write(wChannel4JumpCondition, 0);
+    gb_write(wStereoPanningMask, 0);
+    gb_write(wCryTracks, 0);
+    gb_write(wSFXDuration, 0);
+    gb_write(wCurSFX, 0);
+    gb_write(wMapMusic, 0);
     MusicOn();
 }
 
@@ -59,7 +82,7 @@ void v_UpdateSound(void) {  // called once per frame
     gb_write(wSoundOutput, 0);
     for (curChannel = 0; curChannel < NUM_CHANNELS; curChannel++) {
         gb_write(wCurChannel, curChannel);
-        curChan = chan[curChannel];
+        curChan = &chan[curChannel];
         if (curChan->channelOn) {                                    // is the channel active?
             if (curChan->noteDuration < 2) {                         // check time left in the current note
                 curChan->vibratoDelayCount = curChan->vibratoDelay;  // reset vibrato delay
@@ -76,13 +99,13 @@ void v_UpdateSound(void) {  // called once per frame
             if ((gb_read(wSFXPriority))                                 // turn off music when playing sfx?
                 && (curChannel < NUM_MUSIC_CHANS)) {                    // are we in a sfx channel right now?
                 for (int i = NUM_MUSIC_CHANS; i < NUM_CHANNELS; i++) {  // are any sfx channels active?
-                    if (chan[i]->channelOn) {                           // if so, mute
+                    if (chan[i].channelOn) {                            // if so, mute
                         curChan->rest = 1;
                         break;
                     }
                 }
             }
-            if ((curChannel >= NUM_MUSIC_CHANS) || (!chan[curChannel + NUM_MUSIC_CHANS]->channelOn)) {  // are we in a sfx channel right now?
+            if ((curChannel >= NUM_MUSIC_CHANS) || (!chan[curChannel + NUM_MUSIC_CHANS].channelOn)) {  // are we in a sfx channel right now?
                 UpdateChannels();
                 gb_write(wSoundOutput, gb_read(wSoundOutput) | curChan->tracks);
             }
@@ -186,7 +209,7 @@ void UpdateChannels_Channel4(void) {
 
 int v_CheckSFX(void) {                                      // check if any sfx channels are active
     for (int i = NUM_MUSIC_CHANS; i < NUM_CHANNELS; i++) {  // are any sfx channels active?
-        if (chan[i]->channelOn)
+        if (chan[i].channelOn)
             return 1;
     }
     return 0;
@@ -363,7 +386,7 @@ void ApplyPitchSlide(void) {
 
 void HandleNoise(void) {
     if (curChan->noise) {  // is noise sampling on?
-        if ((gb_read(wCurChannel) & (1 << NOISE_CHAN_F)) || (!chan[CHAN8]->channelOn) || (!chan[CHAN8]->noise)) {
+        if ((gb_read(wCurChannel) & (1 << NOISE_CHAN_F)) || (!chan[CHAN8].channelOn) || (!chan[CHAN8].noise)) {
             if (!gb_read(wNoiseSampleDelay))
                 ReadNoiseSample();
             else
@@ -388,7 +411,7 @@ void ParseMusic(void) {
     while (1) {  // parses until a note is read or the song is ended
         cmd = GetMusicByte();
         if ((cmd == sound_ret_cmd) && (!curChan->subroutine)) {  // song end
-            if ((curChannel >= NUM_MUSIC_CHANS) || (!chan[curChannel + NUM_MUSIC_CHANS]->channelOn)) {
+            if ((curChannel >= NUM_MUSIC_CHANS) || (!chan[curChannel + NUM_MUSIC_CHANS].channelOn)) {
                 if (curChan->cry)
                     RestoreVolume();
                 if (curChannel == CHAN5)
@@ -427,8 +450,8 @@ void ParseMusic(void) {
 
 void RestoreVolume(void) {
     if (curChannel == CHAN5) {  // ch5 only
-        chan[CHAN6]->pitchOffset = 0;
-        chan[CHAN8]->pitchOffset = 0;
+        chan[CHAN6].pitchOffset = 0;
+        chan[CHAN8].pitchOffset = 0;
         gb_write(wVolume, gb_read(wLastVolume));
         gb_write(wLastVolume, 0);
         gb_write(wSFXPriority, 0);
@@ -450,7 +473,7 @@ void GetNoiseSample(void) {                                //  load ptr to sampl
         SetNoteDuration(gb_read(wCurMusicByte) & 0xF);     // update note duration
         uint8_t sample;
         if (!(curChannel & (1 << NOISE_CHAN_F))) {  // check current channel
-            if (chan[CHAN8]->channelOn) return;     // is ch8 on? (noise)
+            if (chan[CHAN8].channelOn) return;      // is ch8 on? (noise)
             sample = gb_read(wMusicNoiseSampleSet);
         } else {
             sample = gb_read(wMusicNoiseSampleSet);
@@ -564,7 +587,7 @@ void Music_Loop(void) {
     if (!curChan->loopCount--) {
         curChan->looping = 0;  // reset loop flag
         curChan->loopCount = 0;
-        curChan->musicAddress += 2;  //skip pointer
+        curChan->musicAddress += 2;  // skip pointer
     } else
         curChan->musicAddress = (GetMusicByte() | (GetMusicByte() << 8));  // get pointer
 }
@@ -589,7 +612,7 @@ void Music_JumpIf(void) {
     if (GetMusicByte() == curChan->condition)
         curChan->musicAddress = (GetMusicByte() | (GetMusicByte() << 8));  // get pointer
     else
-        curChan->musicAddress += 2;  //skip pointer
+        curChan->musicAddress += 2;  // skip pointer
 }
 
 void MusicEE(void) {
@@ -605,7 +628,7 @@ void MusicEE(void) {
         channelJumpCondition[curChannel & 3] = 0;  // reset jump flag
         curChan->musicAddress = (GetMusicByte() | (GetMusicByte() << 8));
     } else
-        curChan->musicAddress += 2;  //skip pointer
+        curChan->musicAddress += 2;  // skip pointer
 }
 
 void MusicE2(void) {
@@ -850,49 +873,49 @@ void SetNoteDuration(uint8_t duration) {
 void SetGlobalTempo(uint16_t tempo) {
     uint8_t ch = (curChannel < NUM_MUSIC_CHANS) ? 0 : NUM_MUSIC_CHANS;
     for (int i = 0; i < NUM_MUSIC_CHANS; i++, ch++) {
-        chan[ch]->tempo = tempo;
-        chan[ch]->field16 = 0;
+        chan[ch].tempo = tempo;
+        chan[ch].field16 = 0;
     }
 }
 
 void StartChannel(void) {
     SetLRTracks();
-    chan[curChannel]->channelOn = 1;
+    chan[curChannel].channelOn = 1;
 }
 
 void SetLRTracks(void) {
     //  set tracks for a the current channel to default
     //  seems to be redundant since this is overwritten by stereo data later
     //  Mono and Stereo appear to initialize the same
-    chan[curChannel]->tracks = (1 << (curChannel & 3));
-    chan[curChannel]->tracks |= chan[curChannel]->tracks << 4;
+    chan[curChannel].tracks = (1 << (curChannel & 3));
+    chan[curChannel].tracks |= chan[curChannel].tracks << 4;
 }
 
 void v_PlayMusic(uint16_t songId) {
     //  load music
     MusicOff();
     gb_write16(wMusicID, songId);
-    LD_HL(mMusic);                  // ld hl, Music
-    REG_HL += songId * 3;           // 3-byte pointer
-    LD_A_hli;                       // ld a, [hli]
-    LD_addr_A(wMusicBank);          // ld [wMusicBank], a
-    LD_E_hl;                        // ld e, [hl]
-    INC_HL;                         // inc hl
-    LD_D_hl;                        // ld d, [hl] ; music header address
+    LD_HL(mMusic);
+    REG_HL += songId * 3;  // 3-byte pointer
+    LD_A_hli;
+    LD_addr_A(wMusicBank);
+    LD_E_hl;
+    INC_HL;
+    LD_D_hl;                        // music header address
     REG_A = LoadMusicByte(REG_DE);  // store first byte of music header in a
-    RLCA;                           // rlca
-    RLCA;                           // rlca
-    maskbits(NUM_MUSIC_CHANS, 0);   // maskbits NUM_MUSIC_CHANS
-    INC_A;                          // inc a
+    RLCA;
+    RLCA;
+    maskbits(NUM_MUSIC_CHANS, 0);
+    INC_A;
 
 loop:
     //  start playing channels
-    PUSH_AF;  // push af
+    PUSH_AF;
     REG_DE = LoadChannel(REG_DE);
     StartChannel();
-    POP_AF;           // pop af
-    DEC_A;            // dec a
-    IF_NZ goto loop;  // jr nz, .loop
+    POP_AF;
+    DEC_A;
+    IF_NZ goto loop;
     for (int i = 0; i < NUM_MUSIC_CHANS; i++) channelJumpCondition[i] = 0;
     noiseSampleAddress = NULL;
     gb_write(wNoiseSampleDelay, 0);
@@ -908,30 +931,30 @@ void v_PlayCry(void) {
     MusicOff();
 
     //  Overload the music id with the cry id
-    LD_HL(wMusicID);  // ld hl, wMusicID
-    LD_hl_E;          // ld [hl], e
-    INC_HL;           // inc hl
-    LD_hl_D;          // ld [hl], d
+    LD_HL(wMusicID);
+    LD_hl_E;
+    INC_HL;
+    LD_hl_D;
 
     //  3-byte pointers (bank, address)
-    LD_HL(mCries);  // ld hl, Cries
-    ADD_HL_DE;      // add hl, de
-    ADD_HL_DE;      // add hl, de
-    ADD_HL_DE;      // add hl, de
+    LD_HL(mCries);
+    ADD_HL_DE;
+    ADD_HL_DE;
+    ADD_HL_DE;
 
-    LD_A_hli;               // ld a, [hli]
-    LD_addr_A(wMusicBank);  // ld [wMusicBank], a
+    LD_A_hli;
+    LD_addr_A(wMusicBank);
 
-    LD_E_hl;  // ld e, [hl]
-    INC_HL;   // inc hl
-    LD_D_hl;  // ld d, [hl]
+    LD_E_hl;
+    INC_HL;
+    LD_D_hl;
 
     //  Read the cry's sound header
     REG_A = LoadMusicByte(REG_DE);
     // Top 2 bits contain the number of channels
-    RLCA;                          // rlca
-    RLCA;                          // rlca
-    maskbits(NUM_MUSIC_CHANS, 0);  // maskbits NUM_MUSIC_CHANS
+    RLCA;
+    RLCA;
+    maskbits(NUM_MUSIC_CHANS, 0);
 
     //  For each channel:
     INC_A;  // inc a
@@ -940,20 +963,9 @@ loop:
     PUSH_AF;                       // push af
     REG_DE = LoadChannel(REG_DE);  // bc = current channel
 
-    LD_HL(CHANNEL_FLAGS1);  // ld hl, CHANNEL_FLAGS1
-    ADD_HL_BC;              // add hl, bc
-    SET_hl(SOUND_CRY);      // set SOUND_CRY, [hl]
-
-    LD_HL(CHANNEL_FLAGS2);       // ld hl, CHANNEL_FLAGS2
-    ADD_HL_BC;                   // add hl, bc
-    SET_hl(SOUND_PITCH_OFFSET);  // set SOUND_PITCH_OFFSET, [hl]
-
-    LD_HL(CHANNEL_PITCH_OFFSET);  // ld hl, CHANNEL_PITCH_OFFSET
-    ADD_HL_BC;                    // add hl, bc
-    LD_A_addr(wCryPitch);         // ld a, [wCryPitch]
-    LD_hli_A;                     // ld [hli], a
-    LD_A_addr(wCryPitch + 1);     // ld a, [wCryPitch + 1]
-    LD_hl_A;                      // ld [hl], a
+    chan[curChannel].cry = 1;
+    chan[curChannel].pitchOffsetEnabled = 1;
+    chan[curChannel].pitchOffset = gb_read16(wCryPitch);
 
     //  No tempo for channel 4
     LD_A_addr(wCurChannel);        // ld a, [wCurChannel]
@@ -962,12 +974,7 @@ loop:
     IF_NC goto start;              // jr nc, .start
 
     //  Tempo is effectively length
-    LD_HL(CHANNEL_TEMPO);       // ld hl, CHANNEL_TEMPO
-    ADD_HL_BC;                  // add hl, bc
-    LD_A_addr(wCryLength);      // ld a, [wCryLength]
-    LD_hli_A;                   // ld [hli], a
-    LD_A_addr(wCryLength + 1);  // ld a, [wCryLength + 1]
-    LD_hl_A;                    // ld [hl], a
+    chan[curChannel].tempo = gb_read16(wCryLength);
 
 start:
     StartChannel();
@@ -982,15 +989,7 @@ start:
     BIT_A(STEREO);        // bit STEREO, a
     IF_Z goto next;       // jr z, .next
 
-    //  [CHANNEL_TRACKS] &= [wCryTracks]
-    LD_HL(CHANNEL_TRACKS);  // ld hl, CHANNEL_TRACKS
-    ADD_HL_BC;              // add hl, bc
-    LD_A_hl;                // ld a, [hl]
-    LD_HL(wCryTracks);      // ld hl, wCryTracks
-    AND_A_hl;               // and [hl]
-    LD_HL(CHANNEL_TRACKS);  // ld hl, CHANNEL_TRACKS
-    ADD_HL_BC;              // add hl, bc
-    LD_hl_A;                // ld [hl], a
+    chan[curChannel].tracks &= gb_read(wCryTracks);
 
 next:
     POP_AF;           // pop af
@@ -998,18 +997,18 @@ next:
     IF_NZ goto loop;  // jr nz, .loop
 
     //  Cries play at max volume, so we save the current volume for later.
-    LD_A_addr(wLastVolume);  // ld a, [wLastVolume]
-    AND_A_A;                 // and a
-    IF_NZ goto end;          // jr nz, .end
+    LD_A_addr(wLastVolume);
+    AND_A_A;
+    IF_NZ goto end;
 
-    LD_A_addr(wVolume);      // ld a, [wVolume]
-    LD_addr_A(wLastVolume);  // ld [wLastVolume], a
-    LD_A(MAX_VOLUME);        // ld a, MAX_VOLUME
-    LD_addr_A(wVolume);      // ld [wVolume], a
+    LD_A_addr(wVolume);
+    LD_addr_A(wLastVolume);
+    LD_A(MAX_VOLUME);
+    LD_addr_A(wVolume);
 
 end:
-    LD_A(1);                  // ld a, 1 ; stop playing music
-    LD_addr_A(wSFXPriority);  // ld [wSFXPriority], a
+    LD_A(1);  // stop playing music
+    LD_addr_A(wSFXPriority);
     MusicOn();
     return;
 }
@@ -1017,104 +1016,74 @@ end:
 void v_PlaySFX(void) {
     //  clear channels if they aren't already
     MusicOff();
-    LD_HL(wChannel5Flags1);    // ld hl, wChannel5Flags1
-    BIT_hl(SOUND_CHANNEL_ON);  // bit SOUND_CHANNEL_ON, [hl] ; ch5 on?
-    IF_Z goto ch6;             // jr z, .ch6
-    RES_hl(SOUND_CHANNEL_ON);  // res SOUND_CHANNEL_ON, [hl] ; turn it off
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR11);         // ldh [rNR11], a ; length/wavepattern = 0
-    LD_A(0x8);                 // ld a, $8
-    LDH_addr_A(rNR12);         // ldh [rNR12], a ; envelope = 0
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR13);         // ldh [rNR13], a ; frequency lo = 0
-    LD_A(0x80);                // ld a, $80
-    LDH_addr_A(rNR14);         // ldh [rNR14], a ; restart sound (freq hi = 0)
-    XOR_A_A;                   // xor a
-    LD_addr_A(wPitchSweep);    // ld [wPitchSweep], a ; pitch sweep off
-    LDH_addr_A(rNR10);         // ldh [rNR10], a ; pitch sweep off
-
-ch6:
-    LD_HL(wChannel6Flags1);    // ld hl, wChannel6Flags1
-    BIT_hl(SOUND_CHANNEL_ON);  // bit SOUND_CHANNEL_ON, [hl]
-    IF_Z goto ch7;             // jr z, .ch7
-    RES_hl(SOUND_CHANNEL_ON);  // res SOUND_CHANNEL_ON, [hl] ; turn it off
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR21);         // ldh [rNR21], a ; length/wavepattern = 0
-    LD_A(0x8);                 // ld a, $8
-    LDH_addr_A(rNR22);         // ldh [rNR22], a ; envelope = 0
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR23);         // ldh [rNR23], a ; frequency lo = 0
-    LD_A(0x80);                // ld a, $80
-    LDH_addr_A(rNR24);         // ldh [rNR24], a ; restart sound (freq hi = 0)
-
-ch7:
-    LD_HL(wChannel7Flags1);    // ld hl, wChannel7Flags1
-    BIT_hl(SOUND_CHANNEL_ON);  // bit SOUND_CHANNEL_ON, [hl]
-    IF_Z goto ch8;             // jr z, .ch8
-    RES_hl(SOUND_CHANNEL_ON);  // res SOUND_CHANNEL_ON, [hl] ; turn it off
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR30);         // ldh [rNR30], a ; sound mode #3 off
-    LDH_addr_A(rNR31);         // ldh [rNR31], a ; length/wavepattern = 0
-    LD_A(0x8);                 // ld a, $8
-    LDH_addr_A(rNR32);         // ldh [rNR32], a ; envelope = 0
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR33);         // ldh [rNR33], a ; frequency lo = 0
-    LD_A(0x80);                // ld a, $80
-    LDH_addr_A(rNR34);         // ldh [rNR34], a ; restart sound (freq hi = 0)
-
-ch8:
-    LD_HL(wChannel8Flags1);    // ld hl, wChannel8Flags1
-    BIT_hl(SOUND_CHANNEL_ON);  // bit SOUND_CHANNEL_ON, [hl]
-    IF_Z goto chscleared;      // jr z, .chscleared
-    RES_hl(SOUND_CHANNEL_ON);  // res SOUND_CHANNEL_ON, [hl] ; turn it off
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR41);         // ldh [rNR41], a ; length/wavepattern = 0
-    LD_A(0x8);                 // ld a, $8
-    LDH_addr_A(rNR42);         // ldh [rNR42], a ; envelope = 0
-    XOR_A_A;                   // xor a
-    LDH_addr_A(rNR43);         // ldh [rNR43], a ; frequency lo = 0
-    LD_A(0x80);                // ld a, $80
-    LDH_addr_A(rNR44);         // ldh [rNR44], a ; restart sound (freq hi = 0)
-    XOR_A_A;                   // xor a
+    if (chan[CHAN5].channelOn) {
+        chan[CHAN5].channelOn = 0;  // turn it off
+        gb_write(rNR11, 0);         // length/wavepattern = 0
+        gb_write(rNR12, 0x8);       // envelope = 0
+        gb_write(rNR13, 0);         // frequency lo = 0
+        gb_write(rNR14, 0x80);      // restart sound (freq hi = 0)
+        gb_write(wPitchSweep, 0);   // pitch sweep off
+        gb_write(rNR10, 0);         // pitch sweep off
+    }
+    if (chan[CHAN6].channelOn) {
+        chan[CHAN6].channelOn = 0;  // turn it off
+        gb_write(rNR21, 0);         // length/wavepattern = 0
+        gb_write(rNR22, 0x8);       // envelope = 0
+        gb_write(rNR23, 0);         // frequency lo = 0
+        gb_write(rNR24, 0x80);      // restart sound (freq hi = 0)
+    }
+    if (chan[CHAN7].channelOn) {
+        chan[CHAN7].channelOn = 0;  // turn it off
+        gb_write(rNR30, 0);         // sound mode #3 off
+        gb_write(rNR31, 0);         // length/wavepattern = 0
+        gb_write(rNR32, 0x8);       // envelope = 0
+        gb_write(rNR33, 0);         // frequency lo = 0
+        gb_write(rNR34, 0x80);      // restart sound (freq hi = 0)
+    }
+    if (chan[CHAN8].channelOn) {
+        chan[CHAN8].channelOn = 0;  // turn it off
+        gb_write(rNR41, 0);         // length/wavepattern = 0
+        gb_write(rNR42, 0x8);       // envelope = 0
+        gb_write(rNR43, 0);         // frequency lo = 0
+        gb_write(rNR44, 0x80);      // restart sound (freq hi = 0)
+    }
     noiseSampleAddress = NULL;
 
 chscleared:
     //  start reading sfx header for # chs
-    LD_HL(wMusicID);        // ld hl, wMusicID
-    LD_hl_E;                // ld [hl], e
-    INC_HL;                 // inc hl
-    LD_hl_D;                // ld [hl], d
-    LD_HL(mSFX);            // ld hl, SFX
-    ADD_HL_DE;              // add hl, de ; three
-    ADD_HL_DE;              // add hl, de ; byte
-    ADD_HL_DE;              // add hl, de ; pointers
-                            // get bank
-    LD_A_hli;               // ld a, [hli]
-    LD_addr_A(wMusicBank);  // ld [wMusicBank], a
-                            // get address
-    LD_E_hl;                // ld e, [hl]
-    INC_HL;                 // inc hl
-    LD_D_hl;                // ld d, [hl]
-                            // get # channels
+    LD_HL(wMusicID);
+    LD_hl_E;
+    INC_HL;
+    LD_hl_D;
+    LD_HL(mSFX);
+    ADD_HL_DE;  // three
+    ADD_HL_DE;  // byte
+    ADD_HL_DE;  // pointers
+                // get bank
+    LD_A_hli;
+    LD_addr_A(wMusicBank);
+    // get address
+    LD_E_hl;
+    INC_HL;
+    LD_D_hl;
+    // get # channels
     REG_A = LoadMusicByte(REG_DE);
-    RLCA;                          // rlca ; top 2
-    RLCA;                          // rlca ; bits
-    maskbits(NUM_MUSIC_CHANS, 0);  // maskbits NUM_MUSIC_CHANS
-    INC_A;                         // inc a ; # channels -> # loops
+    RLCA;  // top 2
+    RLCA;  // bits
+    maskbits(NUM_MUSIC_CHANS, 0);
+    INC_A;  // # channels -> # loops
 
 startchannels:
-    PUSH_AF;                       // push af
-    REG_DE = LoadChannel(REG_DE);  // bc = current channel
-    LD_HL(CHANNEL_FLAGS1);         // ld hl, CHANNEL_FLAGS1
-    ADD_HL_BC;                     // add hl, bc
-    SET_hl(SOUND_SFX);             // set SOUND_SFX, [hl]
+    PUSH_AF;
+    REG_DE = LoadChannel(REG_DE);
+    chan[curChannel].sfx = 1;
     StartChannel();
-    POP_AF;                    // pop af
-    DEC_A;                     // dec a
-    IF_NZ goto startchannels;  // jr nz, .startchannels
+    POP_AF;
+    DEC_A;
+    IF_NZ goto startchannels;
     MusicOn();
-    XOR_A_A;                  // xor a
-    LD_addr_A(wSFXPriority);  // ld [wSFXPriority], a
+    XOR_A_A;
+    LD_addr_A(wSFXPriority);
     return;
 }
 
@@ -1124,96 +1093,76 @@ void PlayStereoSFX(void) {
     MusicOff();
 
     //  standard procedure if stereo's off
-    LD_A_addr(wOptions);      // ld a, [wOptions]
-    BIT_A(STEREO);            // bit STEREO, a
-    IF_Z return v_PlaySFX();  // jp z, _PlaySFX
+    LD_A_addr(wOptions);
+    BIT_A(STEREO);
+    IF_Z return v_PlaySFX();
 
     //  else, let's go ahead with this
-    LD_HL(wMusicID);  // ld hl, wMusicID
-    LD_hl_E;          // ld [hl], e
-    INC_HL;           // inc hl
-    LD_hl_D;          // ld [hl], d
+    LD_HL(wMusicID);
+    LD_hl_E;
+    INC_HL;
+    LD_hl_D;
 
     //  get sfx ptr
-    LD_HL(mSFX);  // ld hl, SFX
-    ADD_HL_DE;    // add hl, de
-    ADD_HL_DE;    // add hl, de
-    ADD_HL_DE;    // add hl, de
+    LD_HL(mSFX);
+    ADD_HL_DE;
+    ADD_HL_DE;
+    ADD_HL_DE;
 
     //  bank
-    LD_A_hli;               // ld a, [hli]
-    LD_addr_A(wMusicBank);  // ld [wMusicBank], a
-                            //  address
-    LD_E_hl;                // ld e, [hl]
-    INC_HL;                 // inc hl
-    LD_D_hl;                // ld d, [hl]
+    LD_A_hli;
+    LD_addr_A(wMusicBank);
+
+    LD_E_hl;
+    INC_HL;
+    LD_D_hl;
 
     //  bit 2-3
     REG_A = LoadMusicByte(REG_DE);
-    RLCA;                          // rlca
-    RLCA;                          // rlca
-    maskbits(NUM_MUSIC_CHANS, 0);  // maskbits NUM_MUSIC_CHANS
-    INC_A;                         // inc a
+    RLCA;
+    RLCA;
+    maskbits(NUM_MUSIC_CHANS, 0);
+    INC_A;
 
 loop:
-    PUSH_AF;  // push af
+    PUSH_AF;
     REG_DE = LoadChannel(REG_DE);
 
-    LD_HL(CHANNEL_FLAGS1);  // ld hl, CHANNEL_FLAGS1
-    ADD_HL_BC;              // add hl, bc
-    SET_hl(SOUND_SFX);      // set SOUND_SFX, [hl]
+    chan[curChannel].sfx = 1;
 
-    PUSH_DE;                       // push de
-                                   // get tracks for this channel
-    LD_A_addr(wCurChannel);        // ld a, [wCurChannel]
-    maskbits(NUM_MUSIC_CHANS, 0);  // maskbits NUM_MUSIC_CHANS
-    LD_E_A;                        // ld e, a
-    LD_D(0);                       // ld d, 0
+    PUSH_DE;
+
+    LD_A_addr(wCurChannel);
+    maskbits(NUM_MUSIC_CHANS, 0);
+    LD_E_A;
+    LD_D(0);
     GetLRTracks();
-    ADD_HL_DE;                  // add hl, de
-    LD_A_hl;                    // ld a, [hl]
-    LD_HL(wStereoPanningMask);  // ld hl, wStereoPanningMask
-    AND_A_hl;                   // and [hl]
+    ADD_HL_DE;
+    LD_A_hl;
+    LD_HL(wStereoPanningMask);
+    AND_A_hl;
 
-    LD_HL(CHANNEL_TRACKS);  // ld hl, CHANNEL_TRACKS
-    ADD_HL_BC;              // add hl, bc
-    LD_hl_A;                // ld [hl], a
+    chan[curChannel].tracks = REG_A;
+    chan[curChannel].field30 = REG_A;
 
-    LD_HL(CHANNEL_FIELD30);  // ld hl, CHANNEL_FIELD30
-    ADD_HL_BC;               // add hl, bc
-    LD_hl_A;                 // ld [hl], a
-
-    LD_A_addr(wCryTracks);  // ld a, [wCryTracks]
-    CP_A(2);                // cp 2 ; ch 1-2
-    IF_C goto skip;         // jr c, .skip
+    LD_A_addr(wCryTracks);
+    CP_A(2);  // ch 1-2
+    IF_C goto skip;
 
     //  ch3-4
-    LD_A_addr(wSFXDuration);  // ld a, [wSFXDuration]
-
-    LD_HL(CHANNEL_FIELD2E);  // ld hl, CHANNEL_FIELD2E
-    ADD_HL_BC;               // add hl, bc
-    LD_hl_A;                 // ld [hl], a
-
-    LD_HL(CHANNEL_FIELD2F);  // ld hl, CHANNEL_FIELD2F
-    ADD_HL_BC;               // add hl, bc
-    LD_hl_A;                 // ld [hl], a
-
-    LD_HL(CHANNEL_FLAGS2);  // ld hl, CHANNEL_FLAGS2
-    ADD_HL_BC;              // add hl, bc
-    SET_hl(SOUND_UNKN_0F);  // set SOUND_UNKN_0F, [hl]
+    chan[curChannel].field2e = gb_read(wSFXDuration);
+    chan[curChannel].field2f = gb_read(wSFXDuration);
+    chan[curChannel].unkn0F = 1;
 
 skip:
-    POP_DE;  // pop de
+    POP_DE;
 
     //  turn channel on
-    LD_HL(CHANNEL_FLAGS1);     // ld hl, CHANNEL_FLAGS1
-    ADD_HL_BC;                 // add hl, bc
-    SET_hl(SOUND_CHANNEL_ON);  // set SOUND_CHANNEL_ON, [hl] ; on
-
+    chan[curChannel].channelOn = 1;
     //  done?
-    POP_AF;           // pop af
-    DEC_A;            // dec a
-    IF_NZ goto loop;  // jr nz, .loop
+    POP_AF;
+    DEC_A;
+    IF_NZ goto loop;
 
     //  we're done
     MusicOn();
@@ -1225,36 +1174,56 @@ uint16_t LoadChannel(uint16_t pointer) {
     //  sets bc to current channel pointer
     curChannel = LoadMusicByte(pointer++) & 7;
     gb_write(wCurChannel, curChannel);
-    chan[curChannel]->channelOn = 0;  // channel off
+    chan[curChannel].channelOn = 0;  // channel off
     ChannelInit(curChannel);
-    chan[curChannel]->musicAddress = LoadMusicByte(pointer) | (LoadMusicByte(pointer + 1) << 8);  // load music pointer
+    chan[curChannel].musicAddress = LoadMusicByte(pointer) | (LoadMusicByte(pointer + 1) << 8);  // load music pointer
     pointer += 2;
-    chan[curChannel]->musicId = gb_read16(wMusicID);      // load music id
-    chan[curChannel]->musicBank = gb_read16(wMusicBank);  // load music bank
+    chan[curChannel].musicId = gb_read16(wMusicID);      // load music id
+    chan[curChannel].musicBank = gb_read16(wMusicBank);  // load music bank
     return pointer;
 }
 
 void ChannelInit(uint8_t channel) {
-    REG_BC = channelPointers[channel];  // ld hl, ChannelPointers
-    //  make sure channel is cleared
-    //  set default tempo and note length in case nothing is loaded
-    //  input:
-    //    bc = channel struct pointer
-    PUSH_DE;                      // push de
-    XOR_A_A;                      // xor a
-                                  // get channel struct location and length
-    LD_HL(CHANNEL_MUSIC_ID);      // ld hl, CHANNEL_MUSIC_ID ; start
-    ADD_HL_BC;                    // add hl, bc
-    LD_E(CHANNEL_STRUCT_LENGTH);  // ld e, CHANNEL_STRUCT_LENGTH ; channel struct length
-    // clear channel
-
-loop:
-    LD_hli_A;                       // ld [hli], a
-    DEC_E;                          // dec e
-    IF_NZ goto loop;                // jr nz, .loop
-    chan[channel]->tempo = 0x100;   // set tempo to default ($100)
-    chan[channel]->noteLength = 1;  // set note length to default ($1) (fast)
-    POP_DE;                         // pop de
+    //   make sure channel is cleared
+    //   set default tempo and note length in case nothing is loaded
+    chan[channel].musicId = 0;
+    chan[channel].musicBank = 0;
+    chan[channel].flags[0] = 0;
+    chan[channel].flags[1] = 0;
+    chan[channel].flags[2] = 0;
+    chan[channel].musicAddress = 0;
+    chan[channel].lastMusicAddress = 0;
+    chan[channel].unused = 0;
+    chan[channel].noteFlags = 0;
+    chan[channel].condition = 0;
+    chan[channel].dutyCycle = 0;
+    chan[channel].volumeEnvelope = 0;
+    chan[channel].frequency = 0;
+    chan[channel].pitch = 0;
+    chan[channel].octave = 0;
+    chan[channel].transposition = 0;
+    chan[channel].noteDuration = 0;
+    chan[channel].field16 = 0;  // noteDurationFraction
+    chan[channel].loopCount = 0;
+    chan[channel].tempo = 0x100;  // set tempo to default ($100)
+    chan[channel].tracks = 0;
+    chan[channel].dutyCyclePattern = 0;
+    chan[channel].vibratoDelayCount = 0;
+    chan[channel].vibratoDelay = 0;
+    chan[channel].vibratoExtent = 0;
+    chan[channel].vibratoRate = 0;
+    chan[channel].pitchSlideTarget = 0;
+    chan[channel].pitchSlideAmount = 0;
+    chan[channel].pitchSlideAmountFraction = 0;
+    chan[channel].field25 = 0;
+    chan[channel].pitchOffset = 0;
+    chan[channel].field29 = 0;     // unused
+    chan[channel].field2a = 0;     // unused
+    chan[channel].field2c = 0;     // unused
+    chan[channel].noteLength = 1;  // set note length to default ($1) (fast)
+    chan[channel].field2e = 0;
+    chan[channel].field2f = 0;
+    chan[channel].field30 = 0;
 }
 
 uint8_t LoadMusicByte(uint16_t pointer) {

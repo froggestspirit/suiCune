@@ -2,7 +2,7 @@
 #include "audio.h"
 #include "../audio/engine.h"
 
-extern struct Channel *chan[8];
+extern struct Channel chan[8];
 
 //  Audio interfaces.
 
@@ -208,10 +208,10 @@ void WaitSFX(void) {  // infinite loop until sfx is done playing
     PUSH_DE;
     PUSH_HL;
     while (1) {
-        if ((!chan[CHAN5]->channelOn) &&
-            (!chan[CHAN6]->channelOn) &&
-            (!chan[CHAN7]->channelOn) &&
-            (!chan[CHAN8]->channelOn)) break;
+        if ((!chan[CHAN5].channelOn) &&
+            (!chan[CHAN6].channelOn) &&
+            (!chan[CHAN7].channelOn) &&
+            (!chan[CHAN8].channelOn)) break;
         gb_finish_frame();
         CALL(aVBlank0);
     }
@@ -224,20 +224,12 @@ void WaitSFX(void) {  // infinite loop until sfx is done playing
 void IsSFXPlaying(void) {
     //  Return carry if no sound effect is playing.
     // The inverse of CheckSFX.
-    LD_A_addr(wChannel5Flags1);  // ld a, [wChannel5Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel6Flags1);  // ld a, [wChannel6Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel7Flags1);  // ld a, [wChannel7Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel8Flags1);  // ld a, [wChannel8Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    SCF;                         // scf
-    RET;                         // ret
+    if (chan[CHAN5].channelOn) goto playing;
+    if (chan[CHAN6].channelOn) goto playing;
+    if (chan[CHAN7].channelOn) goto playing;
+    if (chan[CHAN8].channelOn) goto playing;
+    SCF;  // scf
+    RET;  // ret
 
 playing:
     AND_A_A;  // and a
@@ -501,54 +493,46 @@ max:
 
 void CheckSFX(void) {
     //  Return carry if any SFX channels are active.
-    LD_A_addr(wChannel5Flags1);  // ld a, [wChannel5Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel6Flags1);  // ld a, [wChannel6Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel7Flags1);  // ld a, [wChannel7Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    LD_A_addr(wChannel8Flags1);  // ld a, [wChannel8Flags1]
-    BIT_A(0);                    // bit 0, a
-    IF_NZ goto playing;          // jr nz, .playing
-    AND_A_A;                     // and a
-    RET;                         // ret
+    if (chan[CHAN5].channelOn) goto playing;
+    if (chan[CHAN6].channelOn) goto playing;
+    if (chan[CHAN7].channelOn) goto playing;
+    if (chan[CHAN8].channelOn) goto playing;
+    AND_A_A;
+    RET;
 
 playing:
-    SCF;  // scf
-    RET;  // ret
+    SCF;
+    RET;
 }
 
 void TerminateExpBarSound(void) {
-    XOR_A_A;                     // xor a
-    LD_addr_A(wChannel5Flags1);  // ld [wChannel5Flags1], a
-    LD_addr_A(wPitchSweep);      // ld [wPitchSweep], a
-    LDH_addr_A(rNR10);           // ldh [rNR10], a
-    LDH_addr_A(rNR11);           // ldh [rNR11], a
-    LDH_addr_A(rNR12);           // ldh [rNR12], a
-    LDH_addr_A(rNR13);           // ldh [rNR13], a
-    LDH_addr_A(rNR14);           // ldh [rNR14], a
-    RET;                         // ret
+    XOR_A_A;  // xor a
+    chan[CHAN5].flags[0] = 0;
+    LD_addr_A(wPitchSweep);  // ld [wPitchSweep], a
+    LDH_addr_A(rNR10);       // ldh [rNR10], a
+    LDH_addr_A(rNR11);       // ldh [rNR11], a
+    LDH_addr_A(rNR12);       // ldh [rNR12], a
+    LDH_addr_A(rNR13);       // ldh [rNR13], a
+    LDH_addr_A(rNR14);       // ldh [rNR14], a
+    RET;                     // ret
 }
 
 void ChannelsOff(void) {
-// Quickly turn off music channels
-	gb_write(wChannel1Flags1, 0);
-	gb_write(wChannel2Flags1, 0);
-	gb_write(wChannel3Flags1, 0);
-	gb_write(wChannel4Flags1, 0);
-	gb_write(wPitchSweep, 0);
-	RET;
+    // Quickly turn off music channels
+    chan[CHAN1].channelOn = 0;
+    chan[CHAN2].channelOn = 0;
+    chan[CHAN3].channelOn = 0;
+    chan[CHAN4].channelOn = 0;
+    gb_write(wPitchSweep, 0);
+    RET;
 };
 
 void SFXChannelsOff(void) {
-// Quickly turn off sound effect channels
-	gb_write(wChannel5Flags1, 0);
-	gb_write(wChannel6Flags1, 0);
-	gb_write(wChannel7Flags1, 0);
-	gb_write(wChannel8Flags1, 0);
-	gb_write(wPitchSweep, 0);
-	RET;
+    // Quickly turn off sound effect channels
+    chan[CHAN5].channelOn = 0;
+    chan[CHAN6].channelOn = 0;
+    chan[CHAN7].channelOn = 0;
+    chan[CHAN8].channelOn = 0;
+    gb_write(wPitchSweep, 0);
+    RET;
 }
