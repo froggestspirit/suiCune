@@ -8,6 +8,7 @@ RM	:= rm -f
 EXEOUT	:= -o
 EXTRA_CFLAGS := -std=c99 -Wall -Wextra -Wno-unused-label -Og -g3
 EXE	:= $(NAME)
+STATIC := yes
 
 TARGET := $(NAME)
 SRCS   := tools/emu/peanut_sdl.c tools/emu/minigb_apu/minigb_apu.c \

@@ -131,7 +131,7 @@ GetMovementData:
     POP_DE;
     RET;
 
-
+/* Currently not used?
 MovementData:
         //slow_step ['DOWN']
     //slow_step ['UP']
@@ -145,5 +145,5 @@ MovementData:
     //big_step ['UP']
     //big_step ['LEFT']
     //big_step ['RIGHT']
-
+*/
 }
