@@ -32,8 +32,6 @@ Then run suiCune to launch
 	- All platforms and IDEs available [here](https://premake.github.io/docs/Using-Premake/)
 - Open the solution in the newly created `build` folder
 - Build
-- ???
-- Profit
 
 
 **Process (Beginning)**
