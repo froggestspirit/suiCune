@@ -2,7 +2,7 @@
 #include "audio.h"
 #include "../audio/engine.h"
 
-extern struct Channel chan[8];
+extern struct Channel *chan[8];
 
 //  Audio interfaces.
 
@@ -208,10 +208,10 @@ void WaitSFX(void) {  // infinite loop until sfx is done playing
     PUSH_DE;
     PUSH_HL;
     while (1) {
-        if ((!chan[CHAN5].channelOn) &&
-            (!chan[CHAN6].channelOn) &&
-            (!chan[CHAN7].channelOn) &&
-            (!chan[CHAN8].channelOn)) break;
+        if ((!chan[CHAN5]->channelOn) &&
+            (!chan[CHAN6]->channelOn) &&
+            (!chan[CHAN7]->channelOn) &&
+            (!chan[CHAN8]->channelOn)) break;
         gb_finish_frame();
         CALL(aVBlank0);
     }
@@ -224,10 +224,10 @@ void WaitSFX(void) {  // infinite loop until sfx is done playing
 void IsSFXPlaying(void) {
     //  Return carry if no sound effect is playing.
     // The inverse of CheckSFX.
-    if (chan[CHAN5].channelOn) goto playing;
-    if (chan[CHAN6].channelOn) goto playing;
-    if (chan[CHAN7].channelOn) goto playing;
-    if (chan[CHAN8].channelOn) goto playing;
+    if (chan[CHAN5]->channelOn) goto playing;
+    if (chan[CHAN6]->channelOn) goto playing;
+    if (chan[CHAN7]->channelOn) goto playing;
+    if (chan[CHAN8]->channelOn) goto playing;
     SCF;  // scf
     RET;  // ret
 
@@ -493,10 +493,10 @@ max:
 
 void CheckSFX(void) {
     //  Return carry if any SFX channels are active.
-    if (chan[CHAN5].channelOn) goto playing;
-    if (chan[CHAN6].channelOn) goto playing;
-    if (chan[CHAN7].channelOn) goto playing;
-    if (chan[CHAN8].channelOn) goto playing;
+    if (chan[CHAN5]->channelOn) goto playing;
+    if (chan[CHAN6]->channelOn) goto playing;
+    if (chan[CHAN7]->channelOn) goto playing;
+    if (chan[CHAN8]->channelOn) goto playing;
     AND_A_A;
     RET;
 
@@ -507,7 +507,7 @@ playing:
 
 void TerminateExpBarSound(void) {
     XOR_A_A;  // xor a
-    chan[CHAN5].flags[0] = 0;
+    chan[CHAN5]->flags[0] = 0;
     LD_addr_A(wPitchSweep);  // ld [wPitchSweep], a
     LDH_addr_A(rNR10);       // ldh [rNR10], a
     LDH_addr_A(rNR11);       // ldh [rNR11], a
@@ -519,20 +519,20 @@ void TerminateExpBarSound(void) {
 
 void ChannelsOff(void) {
     // Quickly turn off music channels
-    chan[CHAN1].channelOn = 0;
-    chan[CHAN2].channelOn = 0;
-    chan[CHAN3].channelOn = 0;
-    chan[CHAN4].channelOn = 0;
+    chan[CHAN1]->channelOn = 0;
+    chan[CHAN2]->channelOn = 0;
+    chan[CHAN3]->channelOn = 0;
+    chan[CHAN4]->channelOn = 0;
     gb_write(wPitchSweep, 0);
     RET;
 };
 
 void SFXChannelsOff(void) {
     // Quickly turn off sound effect channels
-    chan[CHAN5].channelOn = 0;
-    chan[CHAN6].channelOn = 0;
-    chan[CHAN7].channelOn = 0;
-    chan[CHAN8].channelOn = 0;
+    chan[CHAN5]->channelOn = 0;
+    chan[CHAN6]->channelOn = 0;
+    chan[CHAN7]->channelOn = 0;
+    chan[CHAN8]->channelOn = 0;
     gb_write(wPitchSweep, 0);
     RET;
 }
