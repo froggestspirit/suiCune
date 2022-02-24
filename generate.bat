@@ -6,7 +6,7 @@ if not exist ".\premake5.exe" (
 
     if exist ".\premake5.zip" (
         if not exist ".\7za.exe" (
-            curl -Lo ".\7za.exe" --url "https://cdn.discordapp.com/attachments/946506825279356969/946540709886959646/7za.exe"
+            curl -Lo ".\7za.exe" --url "https://github.com/BttrDrgn/Utilities/raw/master/7za.exe"
         )
 
         if exist ".\7za.exe" (
