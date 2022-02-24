@@ -1,4 +1,4 @@
-void IsAPokemon(void);
+int IsAPokemon(int wCurPartySpecies);
 void DrawBattleHPBar(void);
 void PrepMonFrontpic(void);
 void v_PrepMonFrontpic(void);

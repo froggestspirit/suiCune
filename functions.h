@@ -414,7 +414,7 @@ void init_function_pointers() {
     // REDIRECTED(GetNthMove);
     // REDIRECTED(GetCurNickname);
     // REDIRECTED(LoadCry);
-    // REDIRECTED(IsAPokemon);
+    CONVERTED(IsAPokemon);
     // REDIRECTED(PlayStereoCry2);
     // REDIRECTED(PrintLevel_Force3Digits);
     // REDIRECTED(GetNickname);
