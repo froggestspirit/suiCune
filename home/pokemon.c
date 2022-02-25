@@ -1,7 +1,7 @@
 #include "../constants.h"
 #include "pokemon.h"
 
-int IsAPokemon(int wCurPartySpecies)
+char IsAPokemon(char wCurPartySpecies)
 
 {
     if ((wCurPartySpecies != 0) && ((wCurPartySpecies == EGG || (wCurPartySpecies < NUM_POKEMON)))) {
