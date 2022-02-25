@@ -3,83 +3,81 @@
 
 //  Functions dealing with VRAM.
 
-void DMATransfer(void){
+void DMATransfer(void) {
     //  Return carry if the transfer is completed.
 
     LDH_A_addr(hDMATransfer);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
-//  Start transfer
+    //  Start transfer
     LDH_addr_A(rHDMA5);
 
-//  Execution is halted until the transfer is complete.
+    //  Execution is halted until the transfer is complete.
 
     XOR_A_A;
     LDH_addr_A(hDMATransfer);
     SCF;
     RET;
-
 }
 
-void UpdateBGMapBuffer(void){
+void UpdateBGMapBuffer(void) {
     //  Copy [hBGMapTileCount] 16x8 tiles from wBGMapBuffer
-//  to bg map addresses in wBGMapBufferPointers.
+    //  to bg map addresses in wBGMapBufferPointers.
 
-//  [hBGMapTileCount] must be even since this is done in pairs.
+    //  [hBGMapTileCount] must be even since this is done in pairs.
 
-//  Return carry on success.
+    //  Return carry on success.
 
     LDH_A_addr(hBGMapUpdate);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
     LDH_A_addr(rVBK);
     PUSH_AF;
 
-//  Relocate the stack pointer to wBGMapBufferPointers
+    //  Relocate the stack pointer to wBGMapBufferPointers
     LD_addr_SP(hSPBuffer);
     LD_HL(wBGMapBufferPointers);
     LD_SP_HL;
 
-//  We can now pop the addresses of affected spots on the BG Map
+    //  We can now pop the addresses of affected spots on the BG Map
 
     LD_HL(wBGMapPalBuffer);
     LD_DE(wBGMapBuffer);
 
-
 next:
     //  Copy a pair of 16x8 blocks (one 16x16 block)
 
-    for(int rept = 0; rept < 2; rept++){
-//  Get our BG Map address
-    POP_BC;
+    for (int rept = 0; rept < 2; rept++) {
+        //  Get our BG Map address
+        POP_BC;
 
-//  Palettes
-    LD_A(1);
-    LDH_addr_A(rVBK);
+        //  Palettes
+        LD_A(1);
+        LDH_addr_A(rVBK);
 
-    LD_A_hli;
-    LD_bc_A;
-    INC_C;
-    LD_A_hli;
-    LD_bc_A;
-    DEC_C;
+        LD_A_hli;
+        LD_bc_A;
+        INC_C;
+        LD_A_hli;
+        LD_bc_A;
+        DEC_C;
 
-//  Tiles
-    LD_A(0);
-    LDH_addr_A(rVBK);
+        //  Tiles
+        LD_A(0);
+        LDH_addr_A(rVBK);
 
-    LD_A_de;
-    INC_DE;
-    LD_bc_A;
-    INC_C;
-    LD_A_de;
-    INC_DE;
-    LD_bc_A;
+        LD_A_de;
+        INC_DE;
+        LD_bc_A;
+        INC_C;
+        LD_A_de;
+        INC_DE;
+        LD_bc_A;
     }
 
-//  We've done 2 16x8 blocks
+    //  We've done 2 16x8 blocks
     LDH_A_addr(hBGMapTileCount);
     DEC_A;
     DEC_A;
@@ -87,7 +85,7 @@ next:
 
     IF_NZ goto next;
 
-//  Restore the stack pointer
+    //  Restore the stack pointer
     LDH_A_addr(hSPBuffer);
     LD_L_A;
     LDH_A_addr(hSPBuffer + 1);
@@ -101,15 +99,14 @@ next:
     LDH_addr_A(hBGMapUpdate);
     SCF;
     RET;
-
 }
 
-void WaitTop(void){
+void WaitTop(void) {
     //  Wait until the top third of the BG Map is being updated.
 
     LDH_A_addr(hBGMapMode);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
     LDH_A_addr(hBGMapThird);
     AND_A_A;
@@ -118,28 +115,26 @@ void WaitTop(void){
     CALL(aDelayFrame);
     JR(mWaitTop);
 
-
 done:
-        XOR_A_A;
+    XOR_A_A;
     LDH_addr_A(hBGMapMode);
     RET;
-
 }
 
-void UpdateBGMap(void){
+void UpdateBGMap(void) {
     //  Update the BG Map, in thirds, from wTilemap and wAttrmap.
 
     LDH_A_addr(hBGMapMode);
     AND_A_A;  // 0
-    RET_Z ;
+    RET_Z;
 
-//  BG Map 0
+    //  BG Map 0
     DEC_A;  // 1
     IF_Z goto Tiles;
     DEC_A;  // 2
     IF_Z goto Attr;
 
-//  BG Map 1
+    //  BG Map 1
     DEC_A;  // useless
 
     LDH_A_addr(hBGMapAddress);
@@ -156,10 +151,10 @@ void UpdateBGMap(void){
     LDH_A_addr(hBGMapMode);
     PUSH_AF;
     CP_A(3);
-    CALL_Z (aUpdateBGMap_Tiles);
+    CALL_Z(aUpdateBGMap_Tiles);
     POP_AF;
     CP_A(4);
-    CALL_Z (aUpdateBGMap_Attr);
+    CALL_Z(aUpdateBGMap_Attr);
 
     POP_HL;
     LD_A_L;
@@ -168,9 +163,8 @@ void UpdateBGMap(void){
     LDH_addr_A(hBGMapAddress + 1);
     RET;
 
-
 Attr:
-        LD_A(1);
+    LD_A(1);
     LDH_addr_A(rVBK);
 
     hlcoord(0, 0, wAttrmap);
@@ -180,25 +174,23 @@ Attr:
     LDH_addr_A(rVBK);
     RET;
 
-
 Tiles:
-        hlcoord(0, 0, wTilemap);
-
+    hlcoord(0, 0, wTilemap);
 
 update:
-        LD_addr_SP(hSPBuffer);
+    LD_addr_SP(hSPBuffer);
 
-//  Which third?
+    //  Which third?
     LDH_A_addr(hBGMapThird);
     AND_A_A;  // 0
     IF_Z goto top;
     DEC_A;  // 1
     IF_Z goto middle;
-// 2
+    // 2
 
 #define THIRD_HEIGHT (SCREEN_HEIGHT / 3)
 
-//  bottom
+    //  bottom
     LD_DE(2 * THIRD_HEIGHT * SCREEN_WIDTH);
     ADD_HL_DE;
     LD_SP_HL;
@@ -211,13 +203,12 @@ update:
     LD_DE(2 * THIRD_HEIGHT * BG_MAP_WIDTH);
     ADD_HL_DE;
 
-//  Next time: top third
+    //  Next time: top third
     XOR_A_A;
     goto start;
 
-
 middle:
-        LD_DE(THIRD_HEIGHT * SCREEN_WIDTH);
+    LD_DE(THIRD_HEIGHT * SCREEN_WIDTH);
     ADD_HL_DE;
     LD_SP_HL;
 
@@ -229,42 +220,39 @@ middle:
     LD_DE(THIRD_HEIGHT * BG_MAP_WIDTH);
     ADD_HL_DE;
 
-//  Next time: bottom third
+    //  Next time: bottom third
     LD_A(2);
     goto start;
 
-
 top:
-        LD_SP_HL;
+    LD_SP_HL;
 
     LDH_A_addr(hBGMapAddress + 1);
     LD_H_A;
     LDH_A_addr(hBGMapAddress);
     LD_L_A;
 
-//  Next time: middle third
+    //  Next time: middle third
     LD_A(1);
-
 
 start:
     //  Which third to update next time
     LDH_addr_A(hBGMapThird);
 
-//  Rows of tiles in a third
+    //  Rows of tiles in a third
     LD_A(THIRD_HEIGHT);
 
-//  Discrepancy between wTilemap and BGMap
+    //  Discrepancy between wTilemap and BGMap
     LD_BC(BG_MAP_WIDTH - (SCREEN_WIDTH - 1));
-
 
 row:
     //  Copy a row of 20 tiles
-    for(int rept = 0; rept < SCREEN_WIDTH / 2 - 1; rept++){
-    POP_DE;
-    LD_hl_E;
-    INC_L;
-    LD_hl_D;
-    INC_L;
+    for (int rept = 0; rept < SCREEN_WIDTH / 2 - 1; rept++) {
+        POP_DE;
+        LD_hl_E;
+        INC_L;
+        LD_hl_D;
+        INC_L;
     }
     POP_DE;
     LD_hl_E;
@@ -281,60 +269,58 @@ row:
     LD_H_A;
     LD_SP_HL;
     RET;
-
 }
 
-void Serve1bppRequest(void){
+void Serve1bppRequest(void) {
     //  Only call during the first fifth of VBlank
 
     LD_A_addr(wRequested1bppSize);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
-//  Back out if we're too far into VBlank
+    //  Back out if we're too far into VBlank
     LDH_A_addr(rLY);
     CP_A(LY_VBLANK);
-    RET_C ;
+    RET_C;
     CP_A(LY_VBLANK + 2);
-    RET_NC ;
+    RET_NC;
 
-//  Copy [wRequested1bppSize] 1bpp tiles from [wRequested1bppSource] to [wRequested1bppDest]
+    //  Copy [wRequested1bppSize] 1bpp tiles from [wRequested1bppSource] to [wRequested1bppDest]
 
     LD_addr_SP(hSPBuffer);
 
-//  Source
+    //  Source
     LD_HL(wRequested1bppSource);
     LD_A_hli;
     LD_H_hl;
     LD_L_A;
     LD_SP_HL;
 
-//  Destination
+    //  Destination
     LD_HL(wRequested1bppDest);
     LD_A_hli;
     LD_H_hl;
     LD_L_A;
 
-//  # tiles to copy
+    //  # tiles to copy
     LD_A_addr(wRequested1bppSize);
     LD_B_A;
 
     XOR_A_A;
     LD_addr_A(wRequested1bppSize);
 
-
 next:
-    
-    for(int rept = 0; rept < 3; rept++){
-    POP_DE;
-    LD_hl_E;
-    INC_L;
-    LD_hl_E;
-    INC_L;
-    LD_hl_D;
-    INC_L;
-    LD_hl_D;
-    INC_L;
+
+    for (int rept = 0; rept < 3; rept++) {
+        POP_DE;
+        LD_hl_E;
+        INC_L;
+        LD_hl_E;
+        INC_L;
+        LD_hl_D;
+        INC_L;
+        LD_hl_D;
+        INC_L;
     }
     POP_DE;
     LD_hl_E;
@@ -362,68 +348,65 @@ next:
     LD_H_A;
     LD_SP_HL;
     RET;
-
 }
 
-void Serve2bppRequest(void){
+void Serve2bppRequest(void) {
     //  Only call during the first fifth of VBlank
 
     LD_A_addr(wRequested2bppSize);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
-//  Back out if we're too far into VBlank
+    //  Back out if we're too far into VBlank
     LDH_A_addr(rLY);
     CP_A(LY_VBLANK);
-    RET_C ;
+    RET_C;
     CP_A(LY_VBLANK + 2);
-    RET_NC ;
+    RET_NC;
     JR(mv_Serve2bppRequest);
-
 }
 
-void Serve2bppRequest_VBlank(void){
-        LD_A_addr(wRequested2bppSize);
+void Serve2bppRequest_VBlank(void) {
+    LD_A_addr(wRequested2bppSize);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
     return v_Serve2bppRequest();
 }
 
-void v_Serve2bppRequest(void){
+void v_Serve2bppRequest(void) {
     //  Copy [wRequested2bppSize] 2bpp tiles from [wRequested2bppSource] to [wRequested2bppDest]
 
     LD_addr_SP(hSPBuffer);
 
-//  Source
+    //  Source
     LD_HL(wRequested2bppSource);
     LD_A_hli;
     LD_H_hl;
     LD_L_A;
     LD_SP_HL;
 
-//  Destination
+    //  Destination
     LD_HL(wRequested2bppDest);
     LD_A_hli;
     LD_H_hl;
     LD_L_A;
 
-//  # tiles to copy
+    //  # tiles to copy
     LD_A_addr(wRequested2bppSize);
     LD_B_A;
 
     XOR_A_A;
     LD_addr_A(wRequested2bppSize);
 
-
 next:
-    
-    for(int rept = 0; rept < 7; rept++){
-    POP_DE;
-    LD_hl_E;
-    INC_L;
-    LD_hl_D;
-    INC_L;
+
+    for (int rept = 0; rept < 7; rept++) {
+        POP_DE;
+        LD_hl_E;
+        INC_L;
+        LD_hl_D;
+        INC_L;
     }
     POP_DE;
     LD_hl_E;
@@ -447,22 +430,21 @@ next:
     LD_H_A;
     LD_SP_HL;
     RET;
-
 }
 
-void AnimateTileset(void){
+void AnimateTileset(void) {
     //  Only call during the first fifth of VBlank
 
     LDH_A_addr(hMapAnims);
     AND_A_A;
-    RET_Z ;
+    RET_Z;
 
-//  Back out if we're too far into VBlank
+    //  Back out if we're too far into VBlank
     LDH_A_addr(rLY);
     CP_A(LY_VBLANK);
-    RET_C ;
+    RET_C;
     CP_A(LY_VBLANK + 7);
-    RET_NC ;
+    RET_NC;
 
     LDH_A_addr(hROMBank);
     PUSH_AF;
@@ -479,7 +461,7 @@ void AnimateTileset(void){
     LD_A(0);
     LDH_addr_A(rVBK);
 
-    CALL(av_AnimateTileset);
+    // CALL(av_AnimateTileset);  //temporarily commented out to fix crashes
 
     POP_AF;
     LDH_addr_A(rVBK);
@@ -488,5 +470,4 @@ void AnimateTileset(void){
     POP_AF;
     RST(aBankswitch);
     RET;
-
 }
